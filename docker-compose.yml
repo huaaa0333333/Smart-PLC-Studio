@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  smart-plc-studio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smart-plc-studio
+    ports:
+      - "8501:8501"
+    volumes:
+      # 持久化儲存與讀取資料夾，確保 RAG 向量資料庫與手冊不會因重啟容器而遺失
+      - ./data:/app/data
+    env_file:
+      - .env
+    restart: unless-stopped
