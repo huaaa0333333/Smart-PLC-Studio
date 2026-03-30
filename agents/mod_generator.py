@@ -1,12 +1,45 @@
 import streamlit as st
 import pandas as pd
 import io
+import re
 from core import utils
 from core import prompts
 from services.rag_service import query_knowledge
-from services.llm_service import generate_structured_content
+from services.llm_service import generate_markdown_stream
 
-def generate_scl(client, collection, user_input: str, target_version: str = "V17", is_advanced: bool = False) -> tuple:
+class SclParseResult:
+    def __init__(self, thinking, tutorial, scl_code, csv_tags):
+        self.thinking = thinking
+        self.tutorial = tutorial
+        self.scl_code = scl_code
+        self.csv_tags = csv_tags
+
+def parse_scl_markdown(text: str) -> SclParseResult:
+    thinking = ""
+    m_thinking = re.search(r'### 🧠 開發思路\n(.*?)(?=###|$)', text, re.DOTALL)
+    if m_thinking: thinking = m_thinking.group(1).strip()
+    
+    tutorial = ""
+    m_tutorial = re.search(r'### 🎓 導師教學\n(.*?)(?=###|$)', text, re.DOTALL)
+    if m_tutorial: tutorial = m_tutorial.group(1).strip()
+    
+    scl_code = ""
+    m_scl = re.search(r'```(?:scl|pascal)\n(.*?)\n```', text, re.DOTALL | re.IGNORECASE)
+    if m_scl: scl_code = m_scl.group(1).strip()
+    else:
+        m_code = re.search(r'### 💻 SCL 程式碼\n(.*?)(?=###|$)', text, re.DOTALL)
+        if m_code: scl_code = m_code.group(1).replace('```', '').strip()
+
+    csv_tags = ""
+    m_csv = re.search(r'```csv\n(.*?)\n```', text, re.DOTALL | re.IGNORECASE)
+    if m_csv: csv_tags = m_csv.group(1).strip()
+    else:
+        m_csv2 = re.search(r'### 📊 CSV 變數表\n(.*?)(?=###|$)', text, re.DOTALL)
+        if m_csv2: csv_tags = m_csv2.group(1).replace('```', '').strip()
+
+    return SclParseResult(thinking, tutorial, scl_code, csv_tags)
+
+def generate_scl(client, collection, user_input: str, target_version: str = "V17", is_advanced: bool = False, stream: bool = False):
     """純邏輯：根據使用者需求與版本從 RAG 提取知識並生成 SCL 程式碼"""
     retrieved_docs = query_knowledge(collection, user_input, n_results=3, where_filter={"version": target_version})
     if not retrieved_docs:
@@ -15,17 +48,22 @@ def generate_scl(client, collection, user_input: str, target_version: str = "V17
     knowledge_text, _ = utils.load_knowledge_base()
     prompt = prompts.get_generator_prompt(target_version, is_advanced, user_input, knowledge_text, retrieved_docs)
     
-    system_instruction = f"你是西門子 TIA Portal {target_version} 的高級專家，請嚴格遵守結構化輸出。"
-    res, _ = generate_structured_content(
+    system_instruction = f"你是西門子 TIA Portal {target_version} 的高級專家，請嚴格遵守 Markdown 格式輸出。"
+    generator = generate_markdown_stream(
         client=client,
         model='gemini-2.5-flash',
         contents=prompt,
-        schema=utils.PLCCodeOutput,
         system_instruction=system_instruction,
         temperature=0.1
     )
-    clean_scl = utils.clean_scl_string(res.scl_code)
-    return res, clean_scl
+    
+    if stream:
+        return generator
+    else:
+        full_text = "".join([chunk for chunk in generator])
+        res = parse_scl_markdown(full_text)
+        clean_scl = utils.clean_scl_string(res.scl_code)
+        return res, clean_scl
 
 def render(client, collection, is_advanced=False):
     # 根據是否為進階模式，動態切換標題與提示字眼
@@ -50,7 +88,15 @@ def render(client, collection, is_advanced=False):
             
         with st.spinner(f"大腦正在檢索 {target_version} 專屬知識庫，撰寫 SCL 中..."):
             try:
-                res, clean_scl = generate_scl(client, collection, user_input, target_version, is_advanced)
+                st.markdown("---")
+                generator = generate_scl(client, collection, user_input, target_version, is_advanced, stream=True)
+                
+                # Streamlit 無縫渲染串流效果！
+                full_text = st.write_stream(generator)
+                
+                # 解析 Markdown 字串以抽取出下載所需組件
+                res = parse_scl_markdown(full_text)
+                clean_scl = utils.clean_scl_string(res.scl_code)
                 
                 # 存入歷史紀錄 (🌟 紀錄中多存一個 version)
                 st.session_state.history_gen.insert(0, {

@@ -15,8 +15,24 @@ def get_generator_prompt(target_version, is_advanced, user_input, knowledge_text
 
     {utils.SCL_RULES}
     【🎯 輸出要求】：
-    1. CSV 必須包含：Name,Path,Data Type,Logical Address,Comment,Hmi Visible,Hmi Accessible,Hmi Writeable,Typeobject ID,Version ID
-    2. scl_code 絕對不可包含 Markdown 標記。
+    請嚴格使用以下 Markdown 格式輸出，包含四大標題，方便系統後續解析成實體檔案供載：
+    
+    ### 🧠 開發思路
+    (闡述您的設計邏輯思路與變數分析)
+    
+    ### 🎓 導師教學
+    (提供逐行新手教學與註解說明)
+    
+    ### 💻 SCL 程式碼
+    ```scl
+    (這裡放純西門子 SCL 程式碼，嚴格遵守 IO 隔離與語法)
+    ```
+    
+    ### 📊 CSV 變數表
+    ```csv
+    Name,Path,Data Type,Logical Address,Comment,Hmi Visible,Hmi Accessible,Hmi Writeable,Typeobject ID,Version ID
+    (填入對應的 CSV 變數內容)
+    ```
     """
 
 def get_architecture_prompt(user_input):
