@@ -1,0 +1,72 @@
+[
+    {
+        "id": "IO_MAP_001",
+        "concept": "數位輸入位元位址",
+        "address_format": "%I[Byte].[Bit]",
+        "data_type": "Bool",
+        "description": "用於表示數位輸入模組上的單一位元狀態。例如，%I0.0 表示輸入位元組 0 的第 0 個位元。在 SCL 中，可直接使用符號名稱（若已定義）或絕對位址來讀取其狀態，例如 `MyDigitalInput := %I0.0;`。"
+    },
+    {
+        "id": "IO_MAP_002",
+        "concept": "數位輸出位元位址",
+        "address_format": "%Q[Byte].[Bit]",
+        "data_type": "Bool",
+        "description": "用於表示數位輸出模組上的單一位元狀態。例如，%Q0.0 表示輸出位元組 0 的第 0 個位元。在 SCL 中，可直接使用符號名稱或絕對位址來設定其狀態，例如 `%Q0.0 := MyDigitalOutput;`。"
+    },
+    {
+        "id": "IO_MAP_003",
+        "concept": "輸入位元組位址",
+        "address_format": "%IB[Byte]",
+        "data_type": "Byte",
+        "description": "用於表示輸入模組上的 8 位元資料。例如，%IB10 表示輸入位元組 10。此位址通常用於讀取 8 個數位輸入或類比輸入的低位元組。在 SCL 中，可使用 `MyInputByte := %IB10;`。"
+    },
+    {
+        "id": "IO_MAP_004",
+        "concept": "輸出位元組位址",
+        "address_format": "%QB[Byte]",
+        "data_type": "Byte",
+        "description": "用於表示輸出模組上的 8 位元資料。例如，%QB10 表示輸出位元組 10。此位址通常用於寫入 8 個數位輸出或類比輸出的低位元組。在 SCL 中，可使用 `%QB10 := MyOutputByte;`。"
+    },
+    {
+        "id": "IO_MAP_005",
+        "concept": "輸入字組位址",
+        "address_format": "%IW[Word]",
+        "data_type": "Word / Int / UInt",
+        "description": "用於表示輸入模組上的 16 位元資料。例如，%IW10 表示輸入字組 10，它包含 %IB10 和 %IB11。此位址常用於類比輸入或多位元數位輸入。在 SCL 中，可使用 `MyInputWord := %IW10;`。"
+    },
+    {
+        "id": "IO_MAP_006",
+        "concept": "輸出字組位址",
+        "address_format": "%QW[Word]",
+        "data_type": "Word / Int / UInt",
+        "description": "用於表示輸出模組上的 16 位元資料。例如，%QW10 表示輸出字組 10，它包含 %QB10 和 %QB11。此位址常用於類比輸出或多位元數位輸出。在 SCL 中，可使用 `%QW10 := MyOutputWord;`。"
+    },
+    {
+        "id": "IO_MAP_007",
+        "concept": "記憶體位元位址 (Marker Bit)",
+        "address_format": "%M[Byte].[Bit]",
+        "data_type": "Bool",
+        "description": "用於程式內部儲存單一位元狀態的記憶體區域。例如，%M10.0 表示記憶體位元組 10 的第 0 個位元。在 SCL 中，可使用 `InternalFlag := %M10.0;`。"
+    },
+    {
+        "id": "IO_MAP_008",
+        "concept": "記憶體字組位址 (Marker Word)",
+        "address_format": "%MW[Word]",
+        "data_type": "Word / Int / UInt",
+        "description": "用於程式內部儲存 16 位元資料的記憶體區域。例如，%MW10 表示記憶體字組 10，它包含 %MB10 和 %MB11。在 SCL 中，可使用 `InternalCounter := %MW10;`。"
+    },
+    {
+        "id": "IO_MAP_009",
+        "concept": "PLC 標籤命名與管理",
+        "address_format": "(符號名稱，非絕對位址)",
+        "data_type": "Any (Bool, Byte, Int, Real, UDT等)",
+        "description": "TIA Portal 允許為 I/O 通道、內部記憶體等分配具描述性的符號名稱（PLC Tags）。這些標籤可被組織到使用者定義的標籤表中，並可添加註釋。系統支援自動填充功能，可依序命名多個相似標籤。在 SCL 中，應優先使用符號名稱而非絕對位址，以提高程式可讀性和維護性，例如 `Motor_Start` 而非 `%I0.0`。"
+    },
+    {
+        "id": "IO_MAP_010",
+        "concept": "使用者定義資料型別 (UDT) 於 I/O 映射",
+        "address_format": "(結構化符號名稱，非絕對位址)",
+        "data_type": "UDT (User Defined Type)",
+        "description": "UDT 允許定義包含多個基本資料型別（如 Bool, Byte, Word）的自定義資料結構，並將其映射到 I/O 模組的地址空間。這有助於將相關的 I/O 點組織成邏輯單元，提高程式結構化程度。例如，一個 UDT 'Motor' 可以包含 'Start' (Bool), 'Stop' (Bool), 'Speed' (Int) 等數據項，並整體分配到一個 I/O 模組的地址區塊。在 SCL 中，可透過 `MyMotor.Start := TRUE;` 訪問 UDT 內的數據項。"
+    }
+]

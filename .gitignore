@@ -1,0 +1,10 @@
+# 忽略環境變數檔案
+.env
+
+# 忽略 Python 產生的暫存檔與虛擬環境
+__pycache__/
+*.pyc
+venv/
+.venv/
+data/manuals/
+data/chroma_db/

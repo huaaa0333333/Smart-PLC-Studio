@@ -1,0 +1,62 @@
+[
+    {
+        "id": "LIB_QA_001",
+        "concept": "TIA Portal Libraries are categorized into Project Libraries and Global Libraries, each serving distinct reuse scopes.",
+        "best_practice": "Leverage Project Libraries for project-specific reusable elements during initial development. Once elements (e.g., SCL blocks) mature and are standardized, migrate them to Global Libraries for broader organizational reuse across multiple projects.",
+        "scl_impact": "SCL blocks (FCs/FBs) and PLC data types (UDTs) developed for a specific project can reside in the Project Library. For enterprise-wide standardization and sharing, well-tested SCL components should be moved to a Global Library."
+    },
+    {
+        "id": "LIB_QA_002",
+        "concept": "Libraries store two primary types of elements: 'Types' (versionable objects like SCL blocks, UDTs, Faceplates) and 'Master Copies' (non-versionable objects like devices, tag tables, documentation templates).",
+        "best_practice": "Utilize 'Types' for all programmable logic components (SCL blocks, UDTs) that require version control, central development, and update capabilities. Use 'Master Copies' for static configurations or templates that are copied as-is.",
+        "scl_impact": "SCL Function Blocks (FBs) and Functions (FCs), along with PLC Data Types (UDTs) integral to SCL logic, are ideal candidates for 'Types' due to their need for structured development and version management."
+    },
+    {
+        "id": "LIB_QA_003",
+        "concept": "Type versioning enables central development, tracking of changes, and controlled rollout of updates (e.g., error corrections, new features) to instances in projects.",
+        "best_practice": "Implement a clear versioning strategy (e.g., semantic versioning) for SCL blocks. Leverage versioning to manage development cycles, test new features in isolation, and ensure controlled deployment of updates to production systems.",
+        "scl_impact": "Versioning is critical for SCL development, allowing engineers to maintain multiple iterations of an SCL block, test changes without affecting production, and easily update existing SCL code in projects when new versions are released."
+    },
+    {
+        "id": "LIB_QA_004",
+        "concept": "Type versions progress through distinct states: 'In work' (for Faceplates/HMI UDTs, editable), 'In test' (for SCL blocks/UDTs, linked to a single test instance, editable), and 'Released' (stable, write-protected, ready for productive use).",
+        "best_practice": "Adhere to the prescribed workflow: develop in 'In work'/'In test', thoroughly test with a dedicated instance, perform consistency checks, and only 'Release' after comprehensive verification. Avoid using 'In test' versions in production.",
+        "scl_impact": "For SCL blocks, the 'In test' state is crucial for debugging and validating changes against a live PLC or simulation before committing to a 'Released' version, minimizing risks in production environments."
+    },
+    {
+        "id": "LIB_QA_005",
+        "concept": "Global Libraries can be created, opened (with an option for write-protection), and managed independently of projects, facilitating shared access and controlled modifications.",
+        "best_practice": "When sharing global libraries, open them in 'read-only' mode by default to prevent accidental changes by multiple users. Only open with write permission when making authorized modifications. For critical libraries, use 'Export as protected library'.",
+        "scl_impact": "Centralized SCL block libraries should be managed with write protection to ensure consistency and integrity. Developers needing to modify SCL types would explicitly open with write access, or create a new version in their local project library for development."
+    },
+    {
+        "id": "LIB_QA_006",
+        "concept": "Global Libraries have version compatibility constraints; older libraries (V13 or earlier) require a two-step upgrade, while V13 SP1+ libraries prompt for a single upgrade. Libraries saved in the current TIA Portal version are not backward compatible.",
+        "best_practice": "Always back up global libraries before upgrading. Plan library upgrades carefully, especially in multi-user environments, as upgraded libraries cannot be opened by older TIA Portal versions, necessitating a coordinated upgrade strategy.",
+        "scl_impact": "When upgrading TIA Portal versions, SCL blocks within global libraries will also be upgraded. This means projects using these SCL blocks with older TIA Portal versions will no longer be able to access the upgraded library, impacting SCL development across different TIA Portal versions."
+    },
+    {
+        "id": "LIB_QA_007",
+        "concept": "Existing project elements (e.g., SCL blocks, UDTs) can be added to the Project Library as 'Types'. TIA Portal automatically creates dependent elements (e.g., referenced UDTs or other SCL blocks) as types in the library, linking the original project element as an instance.",
+        "best_practice": "When adding a complex SCL block to the library, ensure all its internal dependencies (other SCL blocks, UDTs) are also intended to be managed as types. This automatic dependency handling simplifies library population and ensures completeness.",
+        "scl_impact": "This feature is highly beneficial for SCL development, as it ensures that a complete, consistent set of SCL blocks and UDTs is transferred to the library, maintaining the integrity of the SCL logic when reused."
+    },
+    {
+        "id": "LIB_QA_008",
+        "concept": "Within an SCL block (as a Type), references to other *Types* (e.g., other SCL blocks, UDTs) are automatically managed by the library. However, references to *non-type objects* (e.g., Data Blocks, PLC Tags, PLC Constants) are *not* automatically managed as types, requiring manual consistency.",
+        "best_practice": "For SCL blocks intended for reuse, minimize direct references to non-type objects. If unavoidable, ensure consistent naming and manual creation/management of these non-type dependencies at each point of use. Parameterize SCL blocks to pass data rather than directly accessing global tags/DBs.",
+        "scl_impact": "This is a critical consideration for SCL block design. SCL blocks that rely heavily on global data blocks or specific PLC tags will be less reusable as Types, as these dependencies are not automatically carried over or versioned with the SCL block itself."
+    },
+    {
+        "id": "LIB_QA_009",
+        "concept": "TIA Portal distinguishes between compatible (e.g., local data, comments in SCL blocks) and incompatible changes (e.g., interface parameters, UDT structure) to types. Incompatible changes to a type will cause all directly referencing types to be set to 'In test' or 'In work' upon release, requiring re-verification.",
+        "best_practice": "Plan SCL block interface changes carefully. Avoid incompatible changes to 'Released' SCL types unless absolutely necessary, as they trigger a cascade of re-testing for all dependent SCL blocks and projects. HMI type changes are always incompatible.",
+        "scl_impact": "For SCL developers, understanding this distinction is vital. Modifying the `VAR_INPUT`, `VAR_OUTPUT`, `VAR_IN_OUT` sections of an SCL FB/FC is an incompatible change, demanding thorough re-testing of all calling SCL blocks and instances."
+    },
+    {
+        "id": "LIB_QA_010",
+        "concept": "TIA Portal provides tools for performing consistency checks on type versions (manual or automatic on release) to identify errors, and a 'Clean up library' function to remove types and versions not linked to any project instance.",
+        "best_practice": "Regularly perform consistency checks on SCL block versions during development (especially before release) to ensure code integrity. Use 'Clean up library' periodically to remove obsolete or unused SCL block versions, keeping libraries lean and manageable.",
+        "scl_impact": "Ensures the reliability of SCL code. Inconsistent SCL blocks can lead to runtime errors. Cleaning up unused SCL versions prevents confusion and reduces the size of libraries, making them easier to navigate and manage for SCL developers."
+    }
+]

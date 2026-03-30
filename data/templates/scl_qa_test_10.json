@@ -1,0 +1,72 @@
+[
+    {
+        "id": "SCL_QA_001",
+        "category": "基礎邏輯_邏輯閘",
+        "instruction": "如何在SCL中實現一個AND邏輯閘？",
+        "context": "假設有兩個布林輸入 `Input_A` 和 `Input_B`，一個布林輸出 `Output_AND`。",
+        "response": "```scl\n// 變數宣告範例 (實際應用中，這些變數應在FB的VAR_INPUT, VAR_OUTPUT, VAR_TEMP或DB中宣告)\n// VAR_INPUT\n//    Input_A : BOOL; // 第一個布林輸入\n//    Input_B : BOOL; // 第二個布林輸入\n// END_VAR\n// VAR_OUTPUT\n//    Output_AND : BOOL; // AND邏輯輸出\n// END_VAR\n\n// 實現AND邏輯：當Input_A和Input_B都為TRUE時，Output_AND為TRUE\nOutput_AND := Input_A AND Input_B;\n```"
+    },
+    {
+        "id": "SCL_QA_002",
+        "category": "基礎邏輯_邏輯閘",
+        "instruction": "如何在SCL中實現一個OR邏輯閘？",
+        "context": "假設有兩個布林輸入 `Input_C` 和 `Input_D`，一個布林輸出 `Output_OR`。",
+        "response": "```scl\n// 變數宣告範例\n// VAR_INPUT\n//    Input_C : BOOL; // 第一個布林輸入\n//    Input_D : BOOL; // 第二個布林輸入\n// END_VAR\n// VAR_OUTPUT\n//    Output_OR : BOOL; // OR邏輯輸出\n// END_VAR\n\n// 實現OR邏輯：當Input_C或Input_D任一為TRUE時，Output_OR為TRUE\nOutput_OR := Input_C OR Input_D;\n```"
+    },
+    {
+        "id": "SCL_QA_003",
+        "category": "基礎邏輯_邏輯閘",
+        "instruction": "如何在SCL中實現一個NOT邏輯閘？",
+        "context": "假設有一個布林輸入 `Input_E`，一個布林輸出 `Output_NOT`。",
+        "response": "```scl\n// 變數宣告範例\n// VAR_INPUT\n//    Input_E : BOOL; // 布林輸入\n// END_VAR\n// VAR_OUTPUT\n//    Output_NOT : BOOL; // NOT邏輯輸出\n// END_VAR\n\n// 實現NOT邏輯：當Input_E為TRUE時，Output_NOT為FALSE；反之亦然\nOutput_NOT := NOT Input_E;\n```"
+    },
+    {
+        "id": "SCL_QA_004",
+        "category": "基礎邏輯_邏輯閘",
+        "instruction": "如何在SCL中實現一個XOR（互斥或）邏輯閘？",
+        "context": "假設有兩個布林輸入 `Input_F` 和 `Input_G`，一個布林輸出 `Output_XOR`。",
+        "response": "```scl\n// 變數宣告範例\n// VAR_INPUT\n//    Input_F : BOOL; // 第一個布林輸入\n//    Input_G : BOOL; // 第二個布林輸入\n// END_VAR\n// VAR_OUTPUT\n//    Output_XOR : BOOL; // XOR邏輯輸出\n// END_VAR\n\n// 實現XOR邏輯：當Input_F和Input_G不同時（一個TRUE一個FALSE），Output_XOR為TRUE\nOutput_XOR := Input_F XOR Input_G;\n```"
+    },
+    {
+        "id": "SCL_QA_005",
+        "category": "基礎邏輯_計時器應用",
+        "instruction": "如何在SCL中實現一個TON（通電延時）計時器？",
+        "context": "需使用IEC TON計時器，當輸入 `Start_Timer` 為TRUE時，延時 `Preset_Time` 後輸出 `Timer_Done` 為TRUE。同時需要顯示當前已計時時間 `Elapsed_Time`。",
+        "response": "```scl\n// 變數宣告範例 (TON計時器實例通常在FB的VAR_STAT或DB中宣告)\n// VAR_INPUT\n//    Start_Timer : BOOL; // 計時器啟動輸入\n//    Preset_Time : TIME; // 預設延時時間 (例如: T#5S, T#100MS)\n// END_VAR\n// VAR_OUTPUT\n//    Timer_Done : BOOL; // 計時完成輸出\n//    Elapsed_Time : TIME; // 當前已計時時間\n// END_VAR\n// VAR_STAT\n//    TON_Instance : TON; // TON計時器實例，必須是靜態或DB變數以保持狀態\n// END_VAR\n\n// 呼叫TON計時器功能塊\nTON_Instance(IN := Start_Timer, PT := Preset_Time);\n\n// 將計時器輸出賦值給外部變數\nTimer_Done := TON_Instance.Q; // Q為計時完成輸出，當計時達到PT時為TRUE\nElapsed_Time := TON_Instance.ET; // ET為當前已計時時間\n```"
+    },
+    {
+        "id": "SCL_QA_006",
+        "category": "基礎邏輯_計時器應用",
+        "instruction": "如何在SCL中實現一個TOF（斷電延時）計時器？",
+        "context": "需使用IEC TOF計時器，當輸入 `Stop_Timer` 從TRUE變為FALSE後，延時 `Delay_Time` 後輸出 `Output_Delayed_Off` 為FALSE。同時需要顯示當前已延時時間 `Current_Delay_Time`。",
+        "response": "```scl\n// 變數宣告範例 (TOF計時器實例通常在FB的VAR_STAT或DB中宣告)\n// VAR_INPUT\n//    Stop_Timer : BOOL; // 計時器輸入 (當其從TRUE變為FALSE時開始延時)\n//    Delay_Time : TIME; // 預設延時時間\n// END_VAR\n// VAR_OUTPUT\n//    Output_Delayed_Off : BOOL; // 延時斷開輸出\n//    Current_Delay_Time : TIME; // 當前已延時時間\n// END_VAR\n// VAR_STAT\n//    TOF_Instance : TOF; // TOF計時器實例，必須是靜態或DB變數以保持狀態\n// END_VAR\n\n// 呼叫TOF計時器功能塊\nTOF_Instance(IN := Stop_Timer, PT := Delay_Time);\n\n// 將計時器輸出賦值給外部變數\nOutput_Delayed_Off := TOF_Instance.Q; // Q為延時斷開輸出，當延時完成後變為FALSE\nCurrent_Delay_Time := TOF_Instance.ET; // ET為當前已延時時間\n```"
+    },
+    {
+        "id": "SCL_QA_007",
+        "category": "基礎邏輯_計數器應用",
+        "instruction": "如何在SCL中實現一個CTU（增量計數器）？",
+        "context": "需使用IEC CTU計數器，當 `Count_Up_Pulse` 收到上升沿時計數，當計數值達到 `Preset_Value` 時輸出 `Counter_Done` 為TRUE。同時需要顯示當前計數值 `Current_Count`。",
+        "response": "```scl\n// 變數宣告範例 (CTU計數器實例通常在FB的VAR_STAT或DB中宣告)\n// VAR_INPUT\n//    Count_Up_Pulse : BOOL; // 計數上升沿輸入\n//    Reset_Counter : BOOL; // 計數器重置輸入 (當為TRUE時，CV歸零)\n//    Preset_Value : INT; // 預設計數值 (當CV達到此值時Q為TRUE)\n// END_VAR\n// VAR_OUTPUT\n//    Counter_Done : BOOL; // 計數完成輸出\n//    Current_Count : INT; // 當前計數值\n// END_VAR\n// VAR_STAT\n//    CTU_Instance : CTU; // CTU計數器實例，必須是靜態或DB變數以保持狀態\n// END_VAR\n\n// 呼叫CTU計數器功能塊\nCTU_Instance(CU := Count_Up_Pulse, R := Reset_Counter, PV := Preset_Value);\n\n// 將計數器輸出賦值給外部變數\nCounter_Done := CTU_Instance.Q; // Q為計數完成輸出，當CV >= PV時為TRUE\nCurrent_Count := CTU_Instance.CV; // CV為當前計數值\n```"
+    },
+    {
+        "id": "SCL_QA_008",
+        "category": "基礎邏輯_計數器應用",
+        "instruction": "如何在SCL中實現一個CTD（減量計數器）？",
+        "context": "需使用IEC CTD計數器，當 `Count_Down_Pulse` 收到上升沿時減數，當計數值達到0時輸出 `Counter_Zero` 為TRUE。同時需要顯示當前計數值 `Current_Count_CD`。",
+        "response": "```scl\n// 變數宣告範例 (CTD計數器實例通常在FB的VAR_STAT或DB中宣告)\n// VAR_INPUT\n//    Count_Down_Pulse : BOOL; // 計數下降沿輸入\n//    Load_Counter : BOOL; // 計數器載入預設值輸入 (當為TRUE時，CV載入PV)\n//    Preset_Value_CD : INT; // 預設計數值 (載入值)\n// END_VAR\n// VAR_OUTPUT\n//    Counter_Zero : BOOL; // 計數為零輸出\n//    Current_Count_CD : INT; // 當前計數值\n// END_VAR\n// VAR_STAT\n//    CTD_Instance : CTD; // CTD計數器實例，必須是靜態或DB變數以保持狀態\n// END_VAR\n\n// 呼叫CTD計數器功能塊\nCTD_Instance(CD := Count_Down_Pulse, LD := Load_Counter, PV := Preset_Value_CD);\n\n// 將計數器輸出賦值給外部變數\nCounter_Zero := CTD_Instance.Q; // Q為計數為零輸出，當CV <= 0時為TRUE\nCurrent_Count_CD := CTD_Instance.CV; // CV為當前計數值\n```"
+    },
+    {
+        "id": "SCL_QA_009",
+        "category": "基礎邏輯_馬達啟停",
+        "instruction": "如何在SCL中實現一個帶有啟動、停止按鈕和自保持功能的馬達啟停控制？",
+        "context": "假設有 `Start_Button` (常開), `Stop_Button` (常閉), 輸出 `Motor_Output`。需要實現自保持功能。",
+        "response": "```scl\n// 變數宣告範例\n// VAR_INPUT\n//    Start_Button : BOOL; // 啟動按鈕 (常開接點)\n//    Stop_Button : BOOL; // 停止按鈕 (常閉接點)\n// END_VAR\n// VAR_OUTPUT\n//    Motor_Output : BOOL; // 馬達運行輸出\n// END_VAR\n// VAR_TEMP\n//    Motor_Latching : BOOL; // 內部自保持狀態變數\n// END_VAR\n\n// 實現馬達啟停邏輯 (自保持電路)\n// 邏輯說明：\n// 1. 當Start_Button為TRUE時，嘗試啟動馬達。\n// 2. 當Motor_Latching已為TRUE (馬達已運行) 且 Stop_Button未被按下時，保持馬達運行。\n// 3. 當Stop_Button被按下 (為FALSE) 時，強制停止馬達。\nMotor_Latching := (Start_Button OR Motor_Latching) AND Stop_Button;\n\n// 將自保持狀態賦值給馬達實際輸出\nMotor_Output := Motor_Latching;\n```"
+    },
+    {
+        "id": "SCL_QA_010",
+        "category": "基礎邏輯_算術與比較",
+        "instruction": "如何在SCL中執行一個簡單的算術運算並進行條件比較？",
+        "context": "計算兩個整數 `Value1` 和 `Value2` 的和，如果和大於 `Threshold`，則設定布林輸出 `Result_Exceeds_Threshold` 為TRUE，否則為FALSE。",
+        "response": "```scl\n// 變數宣告範例\n// VAR_INPUT\n//    Value1 : INT; // 輸入整數值1\n//    Value2 : INT; // 輸入整數值2\n//    Threshold : INT; // 比較閾值\n// END_VAR\n// VAR_OUTPUT\n//    Result_Exceeds_Threshold : BOOL; // 結果是否超過閾值\n// END_VAR\n// VAR_TEMP\n//    Sum_Value : INT; // 兩數之和的暫存變數\n// END_VAR\n\n// 執行算術運算：計算Value1和Value2的和\nSum_Value := Value1 + Value2;\n\n// 執行條件比較：如果和超過閾值，設定輸出為TRUE\nIF Sum_Value > Threshold THEN\n    Result_Exceeds_Threshold := TRUE;\nELSE\n    Result_Exceeds_Threshold := FALSE;\nEND_IF;\n\n// 也可以使用更簡潔的寫法：\n// Result_Exceeds_Threshold := (Sum_Value > Threshold);\n```"
+    }
+]

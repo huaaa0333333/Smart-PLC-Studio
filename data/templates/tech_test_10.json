@@ -1,0 +1,72 @@
+[
+    {
+        "id": "TECH_QA_001",
+        "to_type": "PID Control",
+        "instruction": "PID_Compact",
+        "key_parameters": "設定值 (SetPoint), 過程值 (ProcessValue), 輸出 (Output), 模式 (Mode: 自動/手動), 調諧 (Tune: 啟動/停止)。",
+        "scl_example": "MyPID_Compact_TO(SetPoint:=#SP_Value, ProcessValue:=#PV_Value, Output:=#Output_Value, Mode:=#AutoMode, Tune:=#StartTune);"
+    },
+    {
+        "id": "TECH_QA_002",
+        "to_type": "PID Control (3-Step)",
+        "instruction": "PID_3Step",
+        "key_parameters": "設定值 (SetPoint), 過程值 (ProcessValue), 開啟輸出 (OutputOpen), 關閉輸出 (OutputClose), 模式 (Mode), 調諧 (Tune)。",
+        "scl_example": "MyPID_3Step_TO(SetPoint:=#SP_Value, ProcessValue:=#PV_Value, OutputOpen:=#OpenPulse, OutputClose:=#ClosePulse, Mode:=#AutoMode);"
+    },
+    {
+        "id": "TECH_QA_003",
+        "to_type": "PID Basic Function (Continuous)",
+        "instruction": "CONT_C",
+        "key_parameters": "設定值 (SP_INT), 過程值 (PV_IN), 手動模式 (MAN), 比例增益 (GAIN), 積分時間 (TI), 微分時間 (TD), 輸出 (LMN)。",
+        "scl_example": "CALL \"CONT_C\" (SP_INT:=#SP_Analog, PV_IN:=#PV_Analog, MAN:=#ManualMode, GAIN:=#Kp, TI:=#Ti_Time, TD:=#Td_Time, LMN:=#Output_Analog);"
+    },
+    {
+        "id": "TECH_QA_004",
+        "to_type": "Auxiliary Function (Ramp)",
+        "instruction": "RampFunction",
+        "key_parameters": "輸入 (IN), 輸出 (OUT), 上升斜率時間 (RampUpTime), 下降斜率時間 (RampDownTime), 啟用 (EN)。",
+        "scl_example": "MyRampGenerator(IN:=#Input_Value, OUT=>#Ramped_Output, RampUpTime:=T#5S, RampDownTime:=T#2S, EN:=TRUE);"
+    },
+    {
+        "id": "TECH_QA_005",
+        "to_type": "Counting & Measurement",
+        "instruction": "High_Speed_Counter",
+        "key_parameters": "計數器限制 (高/低), 啟動值, 門控控制 (軟體/硬體門控), 捕獲功能 (Latch), 同步化, 比較功能。",
+        "scl_example": "MyHSC_TO.SetCounterValue(Value:=0); MyHSC_TO.EnableGate(SW_GATE:=TRUE); #CurrentCount := MyHSC_TO.CurrentValue;"
+    },
+    {
+        "id": "TECH_QA_006",
+        "to_type": "Position Input (Absolute)",
+        "instruction": "SSI_Absolute_Encoder",
+        "key_parameters": "幀長度 (10-40 位), LSB/MSB, 捕獲功能 (Latch), 比較功能, 遲滯 (Hysteresis)。",
+        "scl_example": "#CurrentPosition := MySSI_TO.PositionValue; MySSI_TO.EnableCapture(EN_CAPTURE:=TRUE);"
+    },
+    {
+        "id": "TECH_QA_007",
+        "to_type": "Motion Control (Axis)",
+        "instruction": "MC_Power",
+        "key_parameters": "軸 (Technology Object), 啟用 (Enable), 狀態 (Status), 錯誤 (Error), 診斷 (Diag)。",
+        "scl_example": "MC_Power_DB(Axis:=MyAxis_TO, Enable:=#AxisEnable, Status=>#AxisStatus, Error=>#AxisError, Diag=>#AxisDiag);"
+    },
+    {
+        "id": "TECH_QA_008",
+        "to_type": "Motion Control (Axis)",
+        "instruction": "MC_MoveAbsolute",
+        "key_parameters": "軸 (Technology Object), 位置 (Position), 速度 (Velocity), 加速度 (Acceleration), 減速度 (Deceleration), 加加速度 (Jerk), 執行 (Execute)。",
+        "scl_example": "MC_MoveAbsolute_DB(Axis:=MyAxis_TO, Position:=100.0, Velocity:=50.0, Execute:=#StartMove);"
+    },
+    {
+        "id": "TECH_QA_009",
+        "to_type": "Motion Control (Synchronous Gearing)",
+        "instruction": "MC_GearIn",
+        "key_parameters": "主軸 (Master Axis TO), 從軸 (Slave Axis TO), 齒輪比分子 (RatioNumerator), 齒輪比分母 (RatioDenominator), 執行 (Execute), 齒輪模式 (GearingMode)。",
+        "scl_example": "MC_GearIn_DB(Master:=MasterAxis_TO, Slave:=SlaveAxis_TO, RatioNumerator:=1, RatioDenominator:=2, Execute:=#EngageGear);"
+    },
+    {
+        "id": "TECH_QA_010",
+        "to_type": "Motion Control (Synchronous Camming)",
+        "instruction": "MC_CamIn",
+        "key_parameters": "主軸 (Master Axis TO), 從軸 (Slave Axis TO), 凸輪表 (CamTable Technology Object), 執行 (Execute), 凸輪模式 (CammingMode)。",
+        "scl_example": "MC_CamIn_DB(Master:=MasterAxis_TO, Slave:=SlaveAxis_TO, CamTable:=MyCamTable_TO, Execute:=#EngageCam);"
+    }
+]
