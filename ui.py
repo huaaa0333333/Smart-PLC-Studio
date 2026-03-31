@@ -46,36 +46,37 @@ if "history_batch" not in st.session_state: st.session_state.history_batch = []
 if "history_pdf" not in st.session_state: st.session_state.history_pdf = []
 
 # ==========================================
-# 4. 主程式路由 (側邊欄導航)
+# 4. 主程式路由 (側邊欄摺疊收納導航)
 # ==========================================
 with st.sidebar:
-    st.title("🏭 導航選單")
-    page = st.radio("前往工作室：", [
-        "🏠 首頁主控台",
-        "🚀 一鍵全自動生產線",
-        "🛠️ Bug 診療室",
-        "📦 批次題庫引擎"
-    ])
-    st.divider()
-    if st.button("🗑️ 清除當前頁面紀錄", use_container_width=True):
-        if "PLC 架構設計師" in page: st.session_state.history_arch = []
-        elif "SCL 智能生成" in page or "進階工藝" in page: st.session_state.history_gen = []
-        elif "HMI 介面規劃師" in page: st.session_state.history_hmi = []
-        elif "Bug 診療室" in page: st.session_state.history_bug = []
-        elif "批次題庫" in page: st.session_state.history_batch = []
-        elif "PDF 考題破解器" in page: st.session_state.history_pdf = []
-        st.rerun()
+    st.title("🏭 工作站導航")
+    
+    with st.expander("🚀 主核心引擎", expanded=True):
+        page = st.radio("前往模式：", [
+            "⚡ 一鍵自動化生產線 (Home)",
+            "🛠️ Bug 診療室",
+            "📦 批次題庫引擎"
+        ], label_visibility="collapsed")
+        
+    with st.expander("⚙️ 系統設定與快取", expanded=False):
+        if st.button("🗑️ 清除所有快取紀錄", use_container_width=True):
+            st.session_state.history_arch = []
+            st.session_state.history_gen = []
+            st.session_state.history_hmi = []
+            st.session_state.history_bug = []
+            st.session_state.history_batch = []
+            st.session_state.history_pdf = []
+            st.rerun()
 
 # ==========================================
 # 5. 畫面渲染分發
 # ==========================================
-if page == "🏠 首頁主控台":
-    st.title("⚡ Smart PLC Studio - 智慧指揮中心")
-    st.markdown("> 歡迎來到西門子自動化開發輔助核心，整合 Multi-Agent 工作流與 RAG 專業向量知識檢索技術。")
+if page == "⚡ 一鍵自動化生產線 (Home)":
+    # (這是一個統合 Dashboard 與流水線的終極首頁)
+    st.title("⚡ Smart PLC Studio - 聯邦智能核心")
+    st.markdown("> 歡迎來到西門子自動化開發輔助核心，整合 Multi-Agent 工作流與 RAG 專業知識檢索技術。")
     
-    st.divider()
-    
-    # 使用 st.metric 展現高質感數據狀態
+    # 頂端顯示高質感儀表板
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric(label="🧠 LLM 核心大腦", value="ONLINE", delta="Gemini 2.5 Flash")
@@ -85,17 +86,11 @@ if page == "🏠 首頁主控台":
         st.metric(label="📚 RAG 向量知識庫", value=status_val, delta=status_delta, delta_color="normal" if db_connected else "inverse")
     with col3:
         _, loaded_modules = utils.load_knowledge_base()
-        st.metric(label="📄 基礎手冊模型庫", value=f"{len(loaded_modules)} 卷冊", delta="覆蓋 V17-V19 規範")
+        st.metric(label="📄 基礎手冊模型庫", value=f"{len(loaded_modules)} 卷冊", delta="支援版本：V17, V18, V19")
     
     st.divider()
-    
-    st.markdown("### 🚀 核心模組導覽")
-    st.info("**🚀 一鍵全自動生產線**：上傳 PDF 規格書 ➡️ 【架構選型】 ➡️ 【SCL 程式開發】 ➡️ 【HMI 規劃】的端到端資料流。")
-    st.success("**📝 SCL 智能生成**：輸入口語需求，結合指定版本的知識庫，輸出極淨的 `.scl` 邏輯代碼。")
-    st.warning("**🛠️ Bug 診療室**：貼上 TIA Portal 報錯，AI 幫你抓蟲並給出完全修復檔。")
-    st.error("**📦 批次題庫引擎**：一鍵產出上百題工業標準測試腳本與 QA (支援 XLSX 匯出)。")
 
-elif page == "🚀 一鍵全自動生產線":
+    # 進入真正的流水線 UI
     orchestrator_ui.render(client, collection)
 
 elif page == "🛠️ Bug 診療室":

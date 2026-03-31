@@ -99,5 +99,12 @@ def apply_custom_css():
         hr {
             border-color: rgba(255, 255, 255, 0.08) !important;
         }
+
+        /* 10. 徹底隱藏 Streamlit 原生累贅元件 */
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
+        .stDeployButton {display:none;}
+        [data-testid="stHeader"] {display: none;}
         </style>
     """, unsafe_allow_html=True)
