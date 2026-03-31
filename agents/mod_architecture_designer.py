@@ -78,10 +78,10 @@ def render(client):
             with st.expander(task_title, expanded=(idx == 0)):
                 
                 st.markdown("#### 1️⃣ 系統需求分析 (System Requirements Analysis)")
-                st.info(record['analysis'])
+                st.info(record['analysis'].replace('. ', '。\n\n').replace('。 ', '。\n\n'))
                 
                 st.markdown("#### 2️⃣ 硬體架構與選型 (Hardware Architecture Design)")
-                st.success(record['hardware'])
+                st.success(record['hardware'].replace('. ', '。\n\n').replace('。 ', '。\n\n'))
                 
                 st.markdown("#### 3️⃣ I/O 點位配置表 (I/O Allocation)")
-                st.markdown(record['io'])
+                st.markdown(record['io'].replace('||', '|\n|'))

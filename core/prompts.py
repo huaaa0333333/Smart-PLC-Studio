@@ -42,9 +42,14 @@ def get_architecture_prompt(user_input):
     「{user_input}」
 
     請為此系統產出一份專業的架構規劃書。
-    1. req_analysis：請具體分析這個系統需要幾個 DI、幾個 DO，並特別點出安全需求 (如急停回路的硬體建議)。
-    2. hardware_selection：請根據需求複雜度與預算，推薦一款合適的 PLC (例如 Siemens S7-1200, LOGO!, 或三菱 FX5U)，並說明理由。
-    3. io_allocation：請使用 Markdown 表格列出所有 I/O 點位。表頭必須包含：變數名稱 (Variable Name)、I/O 類型 (Data Type)、硬體接點 (Hardware Address, 如 %I0.0 或 X0)、功能說明 (Description)。
+    【🔥 極度重要的排版要求】：
+    - 所有分析與選型理由，請務必使用「條列式 (Bullet Points) 加上粗體字」來分點說明，絕對不可以把幾十個句子塞在同一個段落！
+    - JSON 中的字串段落之間必須包含正確的換行符號 `\\n\\n`。
+    - Markdown 表格每一列的結尾務必要徹底換行 `\\n`，絕對不可合併在同一行。
+
+    1. req_analysis：詳細列出 I/O 總數與需求，並特別點出安全機制 (急停回路等)。請用層次分明的條列式排版。
+    2. hardware_selection：推薦適合的 PLC 廠牌型號，並條列式說明 3 個考量理由 (如成本、擴充性)。
+    3. io_allocation：請輸出乾淨的 Markdown 表格。表頭：變數名稱 (Variable Name) | I/O 類型 (Data Type) | 硬體接點 (Hardware Address) | 功能說明 (Description)。
     """
 
 def get_pdf_solver_prompt(user_supplement, knowledge_text, retrieved_docs):

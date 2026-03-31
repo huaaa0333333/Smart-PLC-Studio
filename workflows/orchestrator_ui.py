@@ -37,10 +37,12 @@ def render(client, collection):
         # 1. 架構成果
         if "arch" in pipeline_res:
             st.markdown("### 1️⃣ 系統需求與硬體架構 (Architecture)")
-            st.info(pipeline_res["arch"].req_analysis)
-            st.success(pipeline_res["arch"].hardware_selection)
+            st.info(pipeline_res["arch"].req_analysis.replace('. ', '。\n\n').replace('。 ', '。\n\n'))
+            st.success(pipeline_res["arch"].hardware_selection.replace('. ', '。\n\n').replace('。 ', '。\n\n'))
             st.markdown("#### I/O 點位配置表")
-            st.markdown(pipeline_res["arch"].io_allocation)
+            # 處理 JSON 把表格換行吃掉的極端狀況
+            io_table = pipeline_res["arch"].io_allocation.replace("||", "|\n|")
+            st.markdown(io_table)
             
         st.divider()
         
