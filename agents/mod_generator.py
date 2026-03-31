@@ -16,26 +16,52 @@ class SclParseResult:
 
 def parse_scl_markdown(text: str) -> SclParseResult:
     thinking = ""
-    m_thinking = re.search(r'### 🧠 開發思路\n(.*?)(?=###|$)', text, re.DOTALL)
-    if m_thinking: thinking = m_thinking.group(1).strip()
-    
     tutorial = ""
-    m_tutorial = re.search(r'### 🎓 導師教學\n(.*?)(?=###|$)', text, re.DOTALL)
-    if m_tutorial: tutorial = m_tutorial.group(1).strip()
-    
     scl_code = ""
-    m_scl = re.search(r'```(?:scl|pascal)\n(.*?)\n```', text, re.DOTALL | re.IGNORECASE)
-    if m_scl: scl_code = m_scl.group(1).strip()
-    else:
-        m_code = re.search(r'### 💻 SCL 程式碼\n(.*?)(?=###|$)', text, re.DOTALL)
-        if m_code: scl_code = m_code.group(1).replace('```', '').strip()
-
     csv_tags = ""
-    m_csv = re.search(r'```csv\n(.*?)\n```', text, re.DOTALL | re.IGNORECASE)
-    if m_csv: csv_tags = m_csv.group(1).strip()
-    else:
-        m_csv2 = re.search(r'### 📊 CSV 變數表\n(.*?)(?=###|$)', text, re.DOTALL)
-        if m_csv2: csv_tags = m_csv2.group(1).replace('```', '').strip()
+
+    # 使用正則表達式根據 "### " 來切分段落
+    sections = re.split(r'\n(?=### )', '\n' + text)
+
+    for sec in sections:
+        sec = sec.strip()
+        if not sec:
+            continue
+            
+        lines = sec.split('\n', 1)
+        header = lines[0]
+        content = lines[1].strip() if len(lines) > 1 else ""
+        
+        if "思路" in header:
+            thinking = content
+        elif "教學" in header or "導師" in header:
+            tutorial = content
+        elif "SCL" in header or "程式碼" in header:
+            scl_code = content
+            # 濾掉 Markdown code block 標記
+            m = re.search(r'```.*?\n(.*?)\n```', content, re.DOTALL)
+            if m: 
+                scl_code = m.group(1).strip()
+        elif "CSV" in header or "變數" in header:
+            csv_tags = content
+            m = re.search(r'```.*?\n(.*?)\n```', content, re.DOTALL)
+            if m: 
+                csv_tags = m.group(1).strip()
+
+    # 極端防呆：如果 SCL 為空，從整個文字裡硬抓非 CSV 的 Code block
+    if not scl_code:
+        blocks = re.findall(r'```[a-zA-Z-]*\n(.*?)\n```', text, re.DOTALL)
+        for b in blocks:
+            if "Name,Path,Data Type" not in b:
+                scl_code = b.strip()
+                break
+                
+    if not csv_tags:
+        blocks = re.findall(r'```[a-zA-Z-]*\n(.*?)\n```', text, re.DOTALL)
+        for b in blocks:
+            if "Name,Path,Data Type" in b:
+                csv_tags = b.strip()
+                break
 
     return SclParseResult(thinking, tutorial, scl_code, csv_tags)
 
