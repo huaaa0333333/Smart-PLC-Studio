@@ -13,7 +13,12 @@ def render(client, collection):
         height=120, 
         placeholder="例如：老闆要我做一個帶有啟動停按鈕與馬達的簡單輸送帶系統，預算不多，越簡單越好。"
     )
-    pdf_file = st.file_uploader("也可上傳 PDF 題目卷/規格書做為參考 (選填)", type=["pdf"])
+    
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        pdf_file = st.file_uploader("也可上傳 PDF 題目卷/規格書做為參考 (選填)", type=["pdf"])
+    with col2:
+        target_version = st.selectbox("🎯 目標 TIA 版本", ["V17", "V18", "V19"], index=0)
     
     if st.button("🚀 啟動無縫資料流生產線", type="primary"):
         if not user_input.strip() and not pdf_file:
@@ -23,7 +28,7 @@ def render(client, collection):
         pdf_bytes = pdf_file.getvalue() if pdf_file else None
         
         # 啟動自動化流水線
-        pipeline_res = run_automated_pipeline(client, collection, user_input, pdf_bytes=pdf_bytes)
+        pipeline_res = run_automated_pipeline(client, collection, user_input, pdf_bytes=pdf_bytes, target_version=target_version)
         
         if not pipeline_res:
              st.error("流水線在中途或開頭發生嚴重錯誤。")
