@@ -100,11 +100,12 @@ def apply_custom_css():
             border-color: rgba(255, 255, 255, 0.08) !important;
         }
 
-        /* 10. 徹底隱藏 Streamlit 原生累贅元件 */
+        /* 10. 隱藏 Streamlit 原生累贅元件 (但保留側邊欄展開按鈕) */
         #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
         footer {visibility: hidden;}
+        header {background: transparent !important;}
+        [data-testid="stHeader"] {background: transparent !important;}
         .stDeployButton {display:none;}
-        [data-testid="stHeader"] {display: none;}
+        [data-testid="stHeaderActionElements"] {display: none;} /* 只隱藏右上角的選單列 */
         </style>
     """, unsafe_allow_html=True)
