@@ -77,16 +77,13 @@ if page == "⚡ 一鍵自動化生產線 (Home)":
     st.markdown("> 歡迎來到西門子自動化開發輔助核心，整合 Multi-Agent 工作流與 RAG 專業知識檢索技術。")
     
     # 頂端顯示高質感儀表板
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     with col1:
         st.metric(label="🧠 LLM 核心大腦", value="ONLINE", delta="Gemini 2.5 Flash")
     with col2:
         status_val = "READY" if db_connected else "OFFLINE"
         status_delta = "ChromaDB Server" if db_connected else "Check Connection"
         st.metric(label="📚 RAG 向量知識庫", value=status_val, delta=status_delta, delta_color="normal" if db_connected else "inverse")
-    with col3:
-        _, loaded_modules = utils.load_knowledge_base()
-        st.metric(label="📄 基礎手冊模型庫", value=f"{len(loaded_modules)} 卷冊", delta="支援版本：V17, V18, V19")
     
     st.divider()
 
