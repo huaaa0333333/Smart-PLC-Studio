@@ -1,4 +1,4 @@
-import streamlit as st
+﻿import streamlit as st
 import pandas as pd
 import io
 from core import utils
@@ -10,7 +10,7 @@ def generate_batch(client, topic: str, qty: int) -> pd.DataFrame:
     prompt = prompts.get_batch_prompt(topic, qty)
     res, _ = generate_structured_content(
         client=client,
-        model='gemini-2.5-flash',
+        model='gemini-3.0-pro',
         contents=prompt,
         schema=utils.BatchEngineOutput,
         temperature=0.7

@@ -1,4 +1,4 @@
-import streamlit as st
+﻿import streamlit as st
 from pydantic import BaseModel, Field
 from core import prompts
 from services.llm_service import generate_structured_content
@@ -14,7 +14,7 @@ def generate_hmi(client, user_input: str) -> HMIOutput:
     prompt = prompts.get_hmi_designer_prompt(user_input)
     res, _ = generate_structured_content(
         client=client,
-        model='gemini-2.5-flash',
+        model='gemini-3.0-pro',
         contents=prompt,
         schema=HMIOutput,
         system_instruction="你是一個嚴謹的 HMI 設計師，產出的 ASCII Wireframe 必須極度對齊且具備工業美感。",

@@ -1,4 +1,4 @@
-import os
+﻿import os
 import json
 import re
 from dotenv import load_dotenv
@@ -72,7 +72,7 @@ def main():
         user_prompt = "請根據以下手冊區塊內容，精萃出「剛好 10 題」最具代表性的基礎邏輯 QA。請將結果包裝在 ```json 和 ``` 標籤之間，並確保 SCL 語法完全符合西門子規範。\n\n" + safe_chunk
 
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-3.0-pro',
             contents=user_prompt, 
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,
