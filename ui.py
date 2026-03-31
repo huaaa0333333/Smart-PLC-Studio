@@ -16,7 +16,6 @@ st.set_page_config(page_title="Smart PLC Studio - 全能工作站", page_icon="�
 from core import utils
 from core.ui_styles import apply_custom_css
 from agents import mod_bug_clinic
-from agents import mod_batch
 
 # 套用全站深色科技風 CSS
 apply_custom_css()
@@ -54,8 +53,7 @@ with st.sidebar:
     with st.expander("🚀 主核心引擎", expanded=True):
         page = st.radio("前往模式：", [
             "⚡ 一鍵自動化生產線 (Home)",
-            "🛠️ Bug 診療室",
-            "📦 批次題庫引擎"
+            "🛠️ Bug 診療室"
         ], label_visibility="collapsed")
         
     with st.expander("⚙️ 系統設定與快取", expanded=False):
@@ -92,6 +90,3 @@ if page == "⚡ 一鍵自動化生產線 (Home)":
 
 elif page == "🛠️ Bug 診療室":
     mod_bug_clinic.render(client)
-
-elif page == "📦 批次題庫引擎":
-    mod_batch.render(client)
