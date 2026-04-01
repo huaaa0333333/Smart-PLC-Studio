@@ -105,7 +105,11 @@ def apply_custom_css():
         footer {visibility: hidden;}
         header {background: transparent !important;}
         [data-testid="stHeader"] {background: transparent !important;}
-        .stDeployButton {display:none;}
-        [data-testid="stHeaderActionElements"] {display: none;} /* 只隱藏右上角的選單列 */
+        
+        /* 徹底抹除右上角所有的官方按鈕群 (包含 Deploy, Stop, Running Man, 選單) */
+        [data-testid="stHeaderActionElements"] {display: none !important;}
+        [data-testid="stStatusWidget"] {display: none !important;}
+        [data-testid="manage-app-button"] {display: none !important;}
+        .stDeployButton, .stAppDeployButton {display: none !important;}
         </style>
     """, unsafe_allow_html=True)
