@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 import pandas as pd
 import io
 import re
@@ -77,7 +77,7 @@ def generate_scl(client, collection, user_input: str, target_version: str = "V17
     system_instruction = f"你是西門子 TIA Portal {target_version} 的高級專家，請嚴格遵守 Markdown 格式輸出。"
     generator = generate_markdown_stream(
         client=client,
-        model='gemini-3.0-pro',
+        model='gemini-1.5-pro',
         contents=prompt,
         system_instruction=system_instruction,
         temperature=0.1

@@ -1,4 +1,4 @@
-﻿import os
+import os
 import streamlit as st
 from dotenv import load_dotenv
 from google import genai
@@ -77,7 +77,7 @@ if page == "⚡ 一鍵自動化生產線 (Home)":
     # 頂端顯示高質感儀表板
     col1, col2 = st.columns(2)
     with col1:
-        st.metric(label="🧠 LLM 核心大腦", value="ONLINE", delta="Gemini 3.0 Pro")
+        st.metric(label="🧠 LLM 核心大腦", value="ONLINE", delta="Gemini 1.5 Pro")
     with col2:
         status_val = "READY" if db_connected else "OFFLINE"
         status_delta = "ChromaDB Server" if db_connected else "Check Connection"

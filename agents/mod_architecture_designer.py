@@ -1,4 +1,4 @@
-﻿import streamlit as st
+import streamlit as st
 from pydantic import BaseModel, Field
 from core import prompts
 from core import utils
@@ -15,7 +15,7 @@ def generate_architecture(client, user_input: str) -> ArchitectureOutput:
     prompt = prompts.get_architecture_prompt(user_input)
     res, _ = generate_structured_content(
         client=client,
-        model='gemini-3.0-pro',
+        model='gemini-1.5-pro',
         contents=prompt,
         schema=ArchitectureOutput,
         system_instruction="你是一個嚴謹且具備高度工安意識的自動化系統架構師。",

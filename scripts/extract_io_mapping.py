@@ -1,4 +1,4 @@
-﻿import os
+import os
 import json
 import re
 from dotenv import load_dotenv
@@ -67,7 +67,7 @@ def main():
         user_prompt = "請根據以下手冊內容，精萃出「剛好 10 筆」最具代表性的 IO 變數與位址命名規範。請將結果包裝在 ```json 和 ``` 標籤之間，並確保格式正確。\n\n" + safe_chunk
 
         response = client.models.generate_content(
-            model='gemini-3.0-pro',
+            model='gemini-1.5-pro',
             contents=user_prompt, 
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,
