@@ -15,7 +15,7 @@ def generate_architecture(client, user_input: str) -> ArchitectureOutput:
     prompt = prompts.get_architecture_prompt(user_input)
     res, _ = generate_structured_content(
         client=client,
-        model='gemini-1.5-pro',
+        model='gemini-2.5-flash',
         contents=prompt,
         schema=ArchitectureOutput,
         system_instruction="你是一個嚴謹且具備高度工安意識的自動化系統架構師。",

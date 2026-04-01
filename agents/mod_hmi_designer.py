@@ -14,7 +14,7 @@ def generate_hmi(client, user_input: str) -> HMIOutput:
     prompt = prompts.get_hmi_designer_prompt(user_input)
     res, _ = generate_structured_content(
         client=client,
-        model='gemini-1.5-pro',
+        model='gemini-2.5-flash',
         contents=prompt,
         schema=HMIOutput,
         system_instruction="你是一個嚴謹的 HMI 設計師，產出的 ASCII Wireframe 必須極度對齊且具備工業美感。",

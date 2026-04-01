@@ -81,7 +81,7 @@ def main():
         user_prompt = current_config["prompt"] + "\n\n請將結果包裝在 ```json 和 ``` 標籤之間。\n\n" + safe_chunk
 
         response = client.models.generate_content(
-            model='gemini-1.5-pro',
+            model='gemini-2.5-flash',
             contents=user_prompt, 
             config=types.GenerateContentConfig(
                 temperature=0.1, 

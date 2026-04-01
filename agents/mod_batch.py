@@ -10,7 +10,7 @@ def generate_batch(client, topic: str, qty: int) -> pd.DataFrame:
     prompt = prompts.get_batch_prompt(topic, qty)
     res, _ = generate_structured_content(
         client=client,
-        model='gemini-1.5-pro',
+        model='gemini-2.5-flash',
         contents=prompt,
         schema=utils.BatchEngineOutput,
         temperature=0.7

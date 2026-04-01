@@ -8,7 +8,7 @@ def generate_bug_fix(client, bug_input: str) -> tuple:
     prompt = prompts.get_bug_clinic_prompt()
     res, _ = generate_structured_content(
         client=client,
-        model='gemini-1.5-pro',
+        model='gemini-2.5-flash',
         contents=bug_input,
         schema=utils.BugClinicOutput,
         system_instruction=prompt,
