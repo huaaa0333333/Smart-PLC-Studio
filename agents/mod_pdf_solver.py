@@ -106,7 +106,8 @@ def render(client, collection):
                 
                 st.markdown("#### 2️⃣ TIA Portal 全域變數表")
                 try:
-                    df = pd.read_csv(io.StringIO(record['csv']))
+                    df = pd.read_csv(io.StringIO(record['csv']), dtype=str, skipinitialspace=True)
+                    df = df.fillna("")
                     st.dataframe(df, use_container_width=True, hide_index=True)
                     
                     excel_buffer = io.BytesIO()

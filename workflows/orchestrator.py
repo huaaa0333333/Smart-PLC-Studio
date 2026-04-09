@@ -6,10 +6,10 @@ It takes a single user input (and optional PDF) and chains the execution of:
 3. HMI Designer
 No Streamlit UI logic is blocking the background execution.
 """
-from agents import mod_architecture_designer, mod_generator, mod_hmi_designer, mod_pdf_solver
+from agents import mod_architecture_designer, mod_generator, mod_hmi_designer, mod_pdf_solver, mod_code_reviewer
 import streamlit as st
 
-def run_automated_pipeline(client, collection, user_input: str, pdf_bytes: bytes = None, target_version: str = "V17"):
+def run_automated_pipeline(client, collection, user_input: str, pdf_bytes: bytes = None, tag_table_str: str = None, target_version: str = "V17"):
     """Execute the end-to-end automated pipeline."""
     pipeline_state = {}
     
@@ -25,6 +25,10 @@ def run_automated_pipeline(client, collection, user_input: str, pdf_bytes: bytes
                 status.update(label="✅ PDF 解析完成！", state="complete", expanded=False)
         except Exception as e:
             st.warning(f"PDF 解析出現異常，將退回僅使用文字需求: {e}")
+
+    # Optional Step 0.5: Append Tag Table
+    if tag_table_str:
+        pipeline_input += f"\n\n【用戶提供的制式變數表/I/O 配置表 (請優先依循此表設計)】：\n{tag_table_str}"
 
     # Step 1: Architecture Design
     try:
@@ -48,8 +52,14 @@ def run_automated_pipeline(client, collection, user_input: str, pdf_bytes: bytes
             formatted_input = f"原始需求：{pipeline_input}\n【必須嚴格遵守以下系統設計好的硬體 I/O 配置表】\n{arch_res.io_allocation}"
             
             scl_res, clean_scl = mod_generator.generate_scl(client, collection, formatted_input, target_version=target_version, is_advanced=False)
+            # Run code reviewer on generated SCL and CSV tags
+            review_result = mod_code_reviewer.review_generated_code(client, clean_scl, scl_res.csv_tags if hasattr(scl_res, 'csv_tags') else "")
+            pipeline_state["code_review"] = review_result
             pipeline_state["scl"] = {"res": scl_res, "clean_scl": clean_scl}
             status.update(label="✅ SCL 邏輯撰寫完成！", state="complete", expanded=False)
+            # If review score is low, warn user and optionally abort HMI step
+            if review_result.get("score", 0) < 70:
+                st.warning(f"⚠️ 代碼審查得分低 ({review_result['score']}): {review_result['feedback']}")
     except Exception as e:
         st.error(f"❌ 程式碼生成失敗，流水線中斷: {e}")
         return pipeline_state

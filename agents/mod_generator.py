@@ -20,8 +20,8 @@ def parse_scl_markdown(text: str) -> SclParseResult:
     scl_code = ""
     csv_tags = ""
 
-    # 使用正則表達式根據 "### " 來切分段落
-    sections = re.split(r'\n(?=### )', '\n' + text)
+    # 使用正則表達式根據 "# " 來切分段落 (支援 # 到 ####)
+    sections = re.split(r'\n(?=#{1,4} )', '\n' + text)
 
     for sec in sections:
         sec = sec.strip()
@@ -172,17 +172,19 @@ def render(client, collection, is_advanced=False):
                 st.divider()
                 st.markdown("#### 2️⃣ TIA Portal 全域變數表")
                 try:
-                    df = pd.read_csv(io.StringIO(record['csv']))
+                    df = pd.read_csv(io.StringIO(record['csv']), dtype=str, skipinitialspace=True)
+                    df = df.fillna("")
                     st.dataframe(df, use_container_width=True, hide_index=True)
                     
                     excel_buffer = io.BytesIO()
                     with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer: 
-                        df.to_excel(writer, index=False)
+                        # 🌟 核心修正：強制指定 Sheet Name 為 PLC Tags
+                        df.to_excel(writer, index=False, sheet_name="PLC Tags")
                     
                     st.download_button(
                         label="📥 下載可匯入 TIA 的變數表 (.xlsx)", 
                         data=excel_buffer.getvalue(), 
-                        file_name=f"Tags_{ver_tag}_{idx}.xlsx", 
+                        file_name=f"PLC_Tags_{ver_tag}_{idx}.xlsx", 
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
                         key=f"csv_{idx}_{is_advanced}"
                     )

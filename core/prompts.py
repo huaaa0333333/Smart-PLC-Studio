@@ -6,8 +6,11 @@ def get_generator_prompt(target_version, is_advanced, user_input, knowledge_text
     你是一位專精於西門子 TIA Portal {target_version} 與 SCL 語言的資深自動化導師。
     請務必使用完全相容於 TIA Portal {target_version} 的 SCL 語法與 Technology Objects。
 
-    請根據知識庫將需求轉換為 SCL 程式碼與變數表，並提供詳細的逐行教學。
+    請根據知識庫將【客戶需求】轉換為 SCL 程式碼與變數表，並提供詳細的逐行教學。
     {advanced_prompt}
+
+    【客戶需求】：
+    {user_input}
 
     【靜態知識庫與 {target_version} 專屬檢索 (RAG)】：
     {knowledge_text}
@@ -31,7 +34,7 @@ def get_generator_prompt(target_version, is_advanced, user_input, knowledge_text
     ### 📊 CSV 變數表
     ```csv
     Name,Path,Data Type,Logical Address,Comment,Hmi Visible,Hmi Accessible,Hmi Writeable,Typeobject ID,Version ID
-    (填入對應的 CSV 變數內容)
+    (填入對應的 CSV 變數內容，注意：Path 欄位請固定填寫 "Default tag table"；Logical Address 欄位【絕對禁止空白】，若為內部虛擬變數請自行分配 M 區位址如 %M10.0、%MW12 等；【絕對嚴禁】將計時器/計數器等 DB 物件放入全域 CSV 中；所有 Hmi 屬性皆填 True，沒有的欄位請留空但保留逗號)
     ```
     """
 
@@ -66,8 +69,11 @@ def get_pdf_solver_prompt(user_supplement, knowledge_text, retrieved_docs):
 
     {utils.SCL_RULES}
     【🎯 輸出要求】：
-    1. CSV 必須包含：Name,Path,Data Type,Logical Address,Comment,Hmi Visible,Hmi Accessible,Hmi Writeable,Typeobject ID,Version ID
-    2. scl_code 絕對不可包含 Markdown 標記。
+    1. CSV 變數表必須嚴格包含下列標題：Name,Path,Data Type,Logical Address,Comment,Hmi Visible,Hmi Accessible,Hmi Writeable,Typeobject ID,Version ID
+    2. CSV 的 Path 欄位請固定填入 "Default tag table"，Hmi 屬性預設填 True，Typeobject 及 Version ID 空白即可。
+    3. CSV 的 Logical Address 欄位【絕對不能為空】，任何內部記憶體變數請自行分配 M 區塊位址 (例如 %M10.0, %MW12)。
+    4. 【絕對嚴禁】將任何計時器 (TON, TOF) 或計數器 (CTU) 放入 CSV 變數表中，因為它們是區域實例，請將其宣告在 SCL 的 VAR 區塊內。
+    5. scl_code 絕對不可包含 Markdown 標記。
     """
 
 def get_bug_clinic_prompt():
@@ -99,3 +105,25 @@ def get_orchestrator_prompt(workflow_name: str, user_input: str) -> str:
     base = f"You are coordinating a multi‑agent workflow named '{workflow_name}'."
     details = f"User input: {user_input}" if user_input else "No additional user input."
     return f"{base}\n{details}\nProvide concise guidance for each stage."
+
+
+def get_code_reviewer_prompt(scl_code: str, csv_tags: str) -> str:
+    """Prompt for LLM to evaluate generated code and variable table.
+    Returns a JSON string with fields:
+        "score": int (0‑100)
+        "feedback": str (human‑readable comments)
+    """
+    return f"""
+You are an expert code reviewer for Siemens TIA Portal SCL programs.
+Evaluate the provided SCL code and the accompanying CSV variable table.
+Provide a quantitative score (0‑100) where higher is better, and a concise feedback comment.
+Return the result strictly as a JSON object with keys `score` and `feedback`.
+
+---
+SCL Code:
+{scl_code}
+---
+CSV Variable Table:
+{csv_tags}
+---
+"""

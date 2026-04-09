@@ -47,14 +47,22 @@ if "history_pdf" not in st.session_state: st.session_state.history_pdf = []
 # ==========================================
 # 4. 主程式路由 (側邊欄摺疊收納導航)
 # ==========================================
+# 初始化頁面狀態（避免下載或其他重跑時跳回）
+if "page" not in st.session_state:
+    st.session_state.page = "⚡ 一鍵自動化生產線 (Home)"
+
 with st.sidebar:
     st.title("🏭 工作站導航")
     
     with st.expander("🚀 主核心引擎", expanded=True):
-        page = st.radio("前往模式：", [
-            "⚡ 一鍵自動化生產線 (Home)",
-            "🛠️ Bug 診療室"
-        ], label_visibility="collapsed")
+        page = st.radio(
+            "前往模式：",
+            ["⚡ 一鍵自動化生產線 (Home)", "🛠️ Bug 診療室"],
+            label_visibility="collapsed",
+            key="page_radio"
+        )
+        # 同步到 session_state
+        st.session_state.page = page
         
     with st.expander("⚙️ 系統設定與快取", expanded=False):
         if st.button("🗑️ 清除所有快取紀錄", use_container_width=True):
@@ -64,24 +72,29 @@ with st.sidebar:
             st.session_state.history_bug = []
             st.session_state.history_batch = []
             st.session_state.history_pdf = []
+            if "pipeline_res" in st.session_state:
+                del st.session_state.pipeline_res
             st.rerun()
 
 # ==========================================
 # 5. 畫面渲染分發
 # ==========================================
-if page == "⚡ 一鍵自動化生產線 (Home)":
+if st.session_state.page == "⚡ 一鍵自動化生產線 (Home)":
     # (這是一個統合 Dashboard 與流水線的終極首頁)
     st.title("⚡ Smart PLC Studio - 聯邦智能核心")
-    st.markdown("> 歡迎來到西門子自動化開發輔助核心，整合 Multi-Agent 工作流與 RAG 專業知識檢索技術。")
     
-    # 頂端顯示高質感儀表板
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric(label="🧠 LLM 核心大腦", value="ONLINE", delta="Gemini 2.5 Flash")
-    with col2:
-        status_val = "READY" if db_connected else "OFFLINE"
-        status_delta = "ChromaDB Server" if db_connected else "Check Connection"
-        st.metric(label="📚 RAG 向量知識庫", value=status_val, delta=status_delta, delta_color="normal" if db_connected else "inverse")
+    # 判斷是否隱藏儀表板 (如果已有結果，則收納起來節省空間防止跳動感)
+    has_results = "pipeline_res" in st.session_state
+    
+    with st.expander("📊 系統狀態儀表板", expanded=not has_results):
+        st.markdown("> 歡迎來到西門子自動化開發輔助核心，整合 Multi-Agent 工作流與 RAG 專業知識檢索技術。")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric(label="🧠 LLM 核心大腦", value="ONLINE", delta="Gemini 2.5 Flash")
+        with col2:
+            status_val = "READY" if db_connected else "OFFLINE"
+            status_delta = "ChromaDB Server" if db_connected else "Check Connection"
+            st.metric(label="📚 RAG 向量知識庫", value=status_val, delta=status_delta, delta_color="normal" if db_connected else "inverse")
     
     st.divider()
 

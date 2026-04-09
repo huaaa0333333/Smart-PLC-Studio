@@ -1,5 +1,6 @@
 import streamlit as st
 from pydantic import BaseModel, Field
+import re
 from core import prompts
 from core import utils
 from services.llm_service import generate_structured_content
@@ -13,7 +14,7 @@ class ArchitectureOutput(BaseModel):
 def generate_architecture(client, user_input: str) -> ArchitectureOutput:
     """純邏輯：根據使用者需求生成硬體與 I/O 架構"""
     prompt = prompts.get_architecture_prompt(user_input)
-    res, _ = generate_structured_content(
+    res, raw_text = generate_structured_content(
         client=client,
         model='gemini-2.5-flash',
         contents=prompt,
@@ -21,6 +22,8 @@ def generate_architecture(client, user_input: str) -> ArchitectureOutput:
         system_instruction="你是一個嚴謹且具備高度工安意識的自動化系統架構師。",
         temperature=0.2
     )
+    if not res:
+        raise ValueError(f"架構產生失敗，無法解析為標準輸出格式！原始模型輸出:\n{raw_text}")
     return res
 
 def render(client):
@@ -84,4 +87,4 @@ def render(client):
                 st.success(record['hardware'].replace('. ', '。\n\n').replace('。 ', '。\n\n'))
                 
                 st.markdown("#### 3️⃣ I/O 點位配置表 (I/O Allocation)")
-                st.markdown(record['io'].replace('||', '|\n|'))
+                st.markdown(re.sub(r"\|\s*\|", "|\n|", record['io']))
