@@ -1,5 +1,5 @@
 import os
-import streamlit as st
+import streamlit  as st
 from dotenv import load_dotenv
 from google import genai
 from services.rag_service import init_chromadb

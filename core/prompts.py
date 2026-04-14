@@ -18,24 +18,9 @@ def get_generator_prompt(target_version, is_advanced, user_input, knowledge_text
 
     {utils.SCL_RULES}
     【🎯 輸出要求】：
-    請嚴格使用以下 Markdown 格式輸出，包含四大標題，方便系統後續解析成實體檔案供載：
-    
-    ### 🧠 開發思路
-    (闡述您的設計邏輯思路與變數分析)
-    
-    ### 🎓 導師教學
-    (提供逐行新手教學與註解說明)
-    
-    ### 💻 SCL 程式碼
-    ```scl
-    (這裡放純西門子 SCL 程式碼，嚴格遵守 IO 隔離與語法)
-    ```
-    
-    ### 📊 CSV 變數表
-    ```csv
-    Name,Path,Data Type,Logical Address,Comment,Hmi Visible,Hmi Accessible,Hmi Writeable,Typeobject ID,Version ID
-    (填入對應的 CSV 變數內容，注意：Path 欄位請固定填寫 "Default tag table"；Logical Address 欄位【絕對禁止空白】，若為內部虛擬變數請自行分配 M 區位址如 %M10.0、%MW12 等；【絕對嚴禁】將計時器/計數器等 DB 物件放入全域 CSV 中；所有 Hmi 屬性皆填 True，沒有的欄位請留空但保留逗號)
-    ```
+    請嚴格依照 JSON Schema 回傳指定的結構，包含開發思路、教學、純 SCL 程式碼以及 CSV 格式全域變數表。
+    ● SCL 程式碼必須完全合法、可直接在 TIA Portal 匯入。
+    ● CSV 變數表的 Path 請固定為 "Default tag table"，Hmi 屬性全為 True，Logical Address 禁止空白。絕對嚴禁將計時器等 DB 物件放入全域 CSV 中。
     """
 
 def get_architecture_prompt(user_input):
