@@ -5,3 +5,4 @@ chromadb>=0.4.22
 google-genai>=0.3.0
 pydantic>=2.5.0
 python-dotenv>=1.0.0
+python-snap7>=1.3

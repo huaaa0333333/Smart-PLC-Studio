@@ -1,4 +1,6 @@
 import streamlit as st
+import json
+import os
 from pydantic import BaseModel, Field
 import re
 from core import prompts
@@ -10,10 +12,29 @@ class ArchitectureOutput(BaseModel):
     req_analysis: str = Field(description="系統需求分析 (包含 I/O 總數統計、特殊通訊或安全機制評估)")
     hardware_selection: str = Field(description="硬體架構設計與 PLC 選型 (建議適合的 PLC 廠牌型號及選用理由)")
     io_allocation: str = Field(description="I/O 點位配置表 (以 Markdown 表格呈現，包含變數名稱、類型、節點說明)")
+    plc_catalog_selection: str = Field(description="從系統提供的硬體型錄清單中挑選的精確型號名稱 (必須與清單完全一致)")
+
+def _load_plc_catalog() -> dict:
+    """讀取 PLC 硬體型錄 JSON，回傳 dict {display_name: order_number}"""
+    catalog_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'plc_catalog.json')
+    if not os.path.exists(catalog_path):
+        catalog_path = 'data/plc_catalog.json'
+    try:
+        with open(catalog_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return {}
 
 def generate_architecture(client, user_input: str) -> ArchitectureOutput:
-    """純邏輯：根據使用者需求生成硬體與 I/O 架構"""
-    prompt = prompts.get_architecture_prompt(user_input)
+    """純邏輯：根據使用者需求生成硬體與 I/O 架構，並自動從型錄中選出最適合的 PLC 型號"""
+    # 讀取型錄並格式化為提示詞可用的字串
+    plc_catalog = _load_plc_catalog()
+    catalog_options = ""
+    if plc_catalog:
+        catalog_lines = [f"  - {name}" for name in plc_catalog.keys()]
+        catalog_options = "\n".join(catalog_lines)
+
+    prompt = prompts.get_architecture_prompt(user_input, catalog_options=catalog_options)
     res, raw_text = generate_structured_content(
         client=client,
         model='gemini-2.5-flash',
@@ -58,7 +79,8 @@ def render(client):
                     "prompt": user_input,
                     "analysis": res.req_analysis,
                     "hardware": res.hardware_selection,
-                    "io": res.io_allocation
+                    "io": res.io_allocation,
+                    "plc_selection": res.plc_catalog_selection
                 })
             except Exception as e:
                 status.update(label="❌ 代理人作業失敗", state="error")
@@ -85,6 +107,9 @@ def render(client):
                 
                 st.markdown("#### 2️⃣ 硬體架構與選型 (Hardware Architecture Design)")
                 st.success(record['hardware'].replace('. ', '。\n\n').replace('。 ', '。\n\n'))
+                if record.get('plc_selection'):
+                    st.markdown(f"#### 🎯 AI 自動選型結果")
+                    st.warning(f"架構設計師推薦型號：**{record['plc_selection']}**")
                 
                 st.markdown("#### 3️⃣ I/O 點位配置表 (I/O Allocation)")
                 st.markdown(re.sub(r"\|\s*\|", "|\n|", record['io']))

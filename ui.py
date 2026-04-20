@@ -17,8 +17,10 @@ from core import utils
 from core.ui_styles import apply_custom_css
 from agents import mod_bug_clinic
 
-# 套用全站深色科技風 CSS
-apply_custom_css()
+# 初始化並套用全站 CSS 顏色主題
+if "app_theme" not in st.session_state:
+    st.session_state.app_theme = "預設科技黑 (Default)"
+apply_custom_css(st.session_state.app_theme)
 
 # ==========================================
 # 3. 系統資源初始化 (Gemini 引擎 & 向量大腦)
@@ -64,6 +66,18 @@ with st.sidebar:
         # 同步到 session_state
         st.session_state.page = page
         
+    with st.expander("🎨 介面主題風格", expanded=True):
+        theme_options = ["預設科技黑 (Default)", "經典極簡白", "質感工業灰", "回憶之域 (Memories of Realms)", "銀河巡海者 (Galaxy Ranger)"]
+        selected_theme = st.selectbox(
+            "選擇顏色主題：",
+            theme_options,
+            index=theme_options.index(st.session_state.app_theme) if st.session_state.app_theme in theme_options else 0,
+            label_visibility="collapsed"
+        )
+        if selected_theme != st.session_state.app_theme:
+            st.session_state.app_theme = selected_theme
+            st.rerun()
+
     with st.expander("⚙️ 系統設定與快取", expanded=False):
         if st.button("🗑️ 清除所有快取紀錄", use_container_width=True):
             st.session_state.history_arch = []

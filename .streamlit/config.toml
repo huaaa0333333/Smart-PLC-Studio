@@ -1,7 +1,14 @@
 [theme]
-base="dark"
-primaryColor="#00E6A8"
-backgroundColor="#0A191F"
-secondaryBackgroundColor="#0F242C"
-textColor="#DCE3E8"
-font="sans serif"
+# 固定深色基底：深色主題原生搭配，亮色主題由 CSS 強制覆蓋
+primaryColor = "#00E6A8"
+backgroundColor = "#0A191F"
+secondaryBackgroundColor = "#0F242C"
+textColor = "#DCE3E8"
+
+[server]
+headless = true
+port = 8501
+enableCORS = false
+
+[browser]
+gatherUsageStats = false
