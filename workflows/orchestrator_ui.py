@@ -46,6 +46,51 @@ def render(client, collection):
         if k not in st.session_state:
             st.session_state[k] = v
 
+    # 若有 INFEASIBLE 警告尚未處理，優先顯示並中斷後續渲染
+    if st.session_state.get("guard_infeasible_pending"):
+        guard = st.session_state["guard_infeasible_pending"]
+        st.markdown(
+            """
+            <div style='border:2px solid #ff9800;border-radius:12px;
+                        padding:18px 22px;background:rgba(255,152,0,0.08);margin-bottom:16px;'>
+            <h4 style='color:#ff9800;margin-top:0;'>⚠️ 工程師顧問警告：需求存在技術矛盾</h4>
+            """,
+            unsafe_allow_html=True
+        )
+        st.warning(f"**❌ 偵測到的問題：**\n\n{guard.reason}")
+        if guard.suggestion:
+            st.info(f"**💡 AI 建議的修正方案：**\n\n{guard.suggestion}")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        col_adopt, col_force, col_cancel = st.columns([2, 2, 1])
+        with col_adopt:
+            if st.button("✅ 採納建議，修改後重新輸入", type="primary", use_container_width=True, key="guard_adopt"):
+                # 把建議預填回輸入框，讓使用者修改後重新提交
+                st.session_state.pipeline_input_area = (
+                    f"【根據 AI 建議修改】\n原始需求：{guard.reason}\n\n修正建議：{guard.suggestion}\n\n"
+                    "請在此根據上述建議修改後，重新描述您的需求："
+                )
+                st.session_state.guard_infeasible_pending = None
+                st.rerun()
+        with col_force:
+            if st.button("⚡ 強制繼續（忽略警告）", use_container_width=True, key="guard_force"):
+                # 清除警告，繼續跑已暫存的流程
+                pending = st.session_state.pop("guard_infeasible_pipeline", {})
+                st.session_state.guard_infeasible_pending = None
+                _launch_pipeline(
+                    client, collection,
+                    pending.get("user_input", ""),
+                    pending.get("pdf_bytes"),
+                    pending.get("tag_table_str"),
+                    pending.get("target_version", "V17"),
+                    pending.get("start_auto", False),
+                )
+        with col_cancel:
+            if st.button("🔙 取消", use_container_width=True, key="guard_cancel"):
+                st.session_state.guard_infeasible_pending = None
+                st.rerun()
+        return  # 顯示警告卡時，不渲染輸入區
+
     step = st.session_state.pipeline_step
 
     # ---------- 進度條 (非 idle 時顯示) ----------
@@ -187,7 +232,7 @@ def _render_idle(client, collection):
                     return
 
             # ===== 🛡️ 輸入守衛：安全分類過濾 =====
-            with st.spinner("🛡️ 正在分析您的需求合法性..."):
+            with st.spinner("🛡️ 正在分析您的需求合法性與技術可行性..."):
                 guard = validate_input(client, user_input)
 
             if guard.verdict == "INJECTION":
@@ -208,37 +253,21 @@ def _render_idle(client, collection):
                     "- ⚙️ 氣缸順序控制（A/B 缸伸出退回時序）"
                 )
                 return
+            elif guard.verdict == "INFEASIBLE":
+                # 暫存流程參數與守衛結果，顯示警告卡（透過 session_state 保持跨 rerun）
+                st.session_state.guard_infeasible_pending = guard
+                st.session_state.guard_infeasible_pipeline = {
+                    "user_input": user_input,
+                    "pdf_bytes": pdf_bytes,
+                    "tag_table_str": tag_table_str,
+                    "target_version": target_version,
+                    "start_auto": start_auto,
+                }
+                st.rerun()
+                return
             # ============================================
 
-            st.session_state.pipeline_target_ver = target_version
-
-            if start_auto:
-                # ===== 全自動模式 =====
-                with st.spinner("全自動流水線運作中，請稍候..."):
-                    res = run_automated_pipeline(
-                        client, collection, user_input,
-                        pdf_bytes=pdf_bytes, tag_table_str=tag_table_str,
-                        target_version=target_version,
-                    )
-                if not res:
-                    st.error("❌ 流水線在中途發生嚴重錯誤。")
-                else:
-                    st.session_state.pipeline_res = res
-                    st.session_state.pipeline_step = "all_done"
-                    st.rerun()
-            else:
-                # ===== 逐步模式：先跑 Step 0.5 (控制箱工程) =====
-                pipeline_input = prepare_pipeline_input(
-                    client, collection, user_input, pdf_bytes, tag_table_str
-                )
-                st.session_state.pipeline_input = pipeline_input
-                try:
-                    panel_res = run_step_panel_engineering(client, pipeline_input)
-                    st.session_state.pipeline_res = {"panel": panel_res}
-                    st.session_state.pipeline_step = "panel_done"
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"❌ 控制箱工程規劃失敗: {e}")
+            _launch_pipeline(client, collection, user_input, pdf_bytes, tag_table_str, target_version, start_auto)
                     
     else:
         # ==========================================
@@ -284,6 +313,40 @@ def _render_idle(client, collection):
                         st.rerun()
                     except Exception as e:
                         status.update(label=f"❌ 考古任務中途失敗: {e}", state="error")
+
+# ==========================================
+#  輔助：統一啟動生產線
+# ==========================================
+def _launch_pipeline(client, collection, user_input, pdf_bytes, tag_table_str, target_version, start_auto):
+    """抽取成獨立函式，讓正常流程與 INFEASIBLE 強制繼續都能共用。"""
+    st.session_state.pipeline_target_ver = target_version
+
+    if start_auto:
+        with st.spinner("全自動流水線運作中，請稍候..."):
+            res = run_automated_pipeline(
+                client, collection, user_input,
+                pdf_bytes=pdf_bytes, tag_table_str=tag_table_str,
+                target_version=target_version,
+            )
+        if not res:
+            st.error("❌ 流水線在中途發生嚴重錯誤。")
+        else:
+            st.session_state.pipeline_res = res
+            st.session_state.pipeline_step = "all_done"
+            st.rerun()
+    else:
+        pipeline_input = prepare_pipeline_input(
+            client, collection, user_input, pdf_bytes, tag_table_str
+        )
+        st.session_state.pipeline_input = pipeline_input
+        try:
+            panel_res = run_step_panel_engineering(client, pipeline_input)
+            st.session_state.pipeline_res = {"panel": panel_res}
+            st.session_state.pipeline_step = "panel_done"
+            st.rerun()
+        except Exception as e:
+            st.error(f"❌ 控制箱工程規劃失敗: {e}")
+
 
 # ==========================================
 #  狀態 1.5：panel_done — 控制箱審核
