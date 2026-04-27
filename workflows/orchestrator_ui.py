@@ -17,6 +17,7 @@ from workflows.orchestrator import (
 )
 from services.tia_exporter import TIAExporter
 from core.input_guard import validate_input
+from core.config import TIA_VERSION, TIA_ALL_VERSIONS, DEFAULT_PLC_NAME, DEFAULT_PROJECT_PATH
 
 
 # ==========================================
@@ -198,9 +199,23 @@ def _render_idle(client, collection):
                 key="pipeline_tag_uploader",
             )
         with col3:
+            # ---- 動態版本選擇器（優先使用自動偵測結果）----
+            _version_options = TIA_ALL_VERSIONS if TIA_ALL_VERSIONS else ["V17", "V18", "V19"]
+            # 自動偵測到的版本預設選中
+            _default_idx = 0  # 已排序，第一個為最新版
+            if TIA_VERSION in _version_options:
+                _default_idx = _version_options.index(TIA_VERSION)
             target_version = st.selectbox(
-                "🎯 目標 TIA 版本", ["V17", "V18", "V19"], index=0, key="pipeline_target_version_sel"
+                "🎯 目標 TIA 版本",
+                _version_options,
+                index=_default_idx,
+                key="pipeline_target_version_sel",
+                help=f"🔍 自動偵測結果：{TIA_VERSION}" if TIA_ALL_VERSIONS else "⚠️ 未偵測到 TIA Portal，請手動選擇"
             )
+            if TIA_ALL_VERSIONS:
+                st.caption(f"🔍 自動偵測：已安裝 {', '.join(TIA_ALL_VERSIONS)}")
+            else:
+                st.caption("⚠️ 未偵測到 TIA Portal 安裝")
 
         # ---- TIA 部署設定 ----
         _render_tia_settings("_idle")

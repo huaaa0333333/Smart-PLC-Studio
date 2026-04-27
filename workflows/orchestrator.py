@@ -15,6 +15,7 @@ from agents import (
     mod_pdf_solver, mod_code_reviewer, mod_safety_auditor
 )
 import streamlit as st
+from core.config import SAFETY_SCORE_THRESHOLD, CODE_REVIEW_THRESHOLD, MAX_SCL_RETRIES
 
 def prepare_pipeline_input(client, collection, user_input: str, pdf_bytes: bytes = None, tag_table_str: str = None) -> str:
     """Step 0: Prepare pipeline input (Optional PDF Parsing & Tag Table Appending)."""
@@ -86,10 +87,9 @@ def run_step_scl(client, collection, pipeline_input: str, arch_res,
     """Step 2 — SCL Code Generation. Returns (scl_res, clean_scl, review_result, safety_result)."""
     
     current_feedback = feedback
-    max_retries = 2
     retry_count = 0
     
-    while retry_count <= max_retries:
+    while retry_count <= MAX_SCL_RETRIES:
         formatted_input = (
             f"原始需求：{pipeline_input}\n"
             f"【必須嚴格遵守以下系統設計好的硬體 I/O 配置表】\n{arch_res.io_allocation}"
@@ -114,7 +114,7 @@ def run_step_scl(client, collection, pipeline_input: str, arch_res,
             safety_result = run_step_safety_audit(client, clean_scl, scl_res.csv_tags)
             
             # 如果安全分數過低且還有重試機會，則自動觸發重試
-            if safety_result.safety_score < 60 and retry_count < max_retries:
+            if safety_result.safety_score < SAFETY_SCORE_THRESHOLD and retry_count < MAX_SCL_RETRIES:
                 retry_count += 1
                 st.warning(f"🛡️ 工安稽核未通過 (得分: {safety_result.safety_score})。正在根據建議自動修正並重新生成...")
                 current_feedback = f"【工安稽核失敗，請針對以下風險進行修正】：\n{safety_result.recommendations}"
@@ -122,7 +122,7 @@ def run_step_scl(client, collection, pipeline_input: str, arch_res,
                 continue
             
             status.update(label="✅ SCL 邏輯撰寫與安全稽核完成！", state="complete", expanded=False)
-            if review_result.get("score", 0) < 70:
+            if review_result.get("score", 0) < CODE_REVIEW_THRESHOLD:
                 st.warning(f"⚠️ 代碼品質審查得分較低 ({review_result['score']}): {review_result['feedback']}")
             
             return scl_res, clean_scl, review_result, safety_result

@@ -1,0 +1,62 @@
+# config.toml
+# ============================================================
+# Smart PLC Studio — 使用者設定檔
+# 修改此檔案後，重新啟動 Streamlit 即可生效。
+# 請勿刪除任何鍵名，僅修改等號右側的值。
+# ============================================================
+
+[tia]
+# TIA Portal 版本設定
+# auto_detect = true  → 系統自動掃描 Windows 登錄檔找出已安裝版本
+# auto_detect = false → 使用下方 default_version 的手動指定值
+auto_detect = true
+
+# 當 auto_detect = false，或偵測失敗時的備援版本
+# 可選值：V15、V15.1、V16、V17、V18、V19、V20
+default_version = "V17"
+
+# TIA Openness DLL 路徑覆寫（留空代表使用自動偵測的路徑）
+# 範例：openness_dll_override = "C:\\Siemens\\Automation\\TIAV17\\bin\\Siemens.Engineering.dll"
+openness_dll_override = ""
+
+# TIA Portal 可執行檔路徑（留空代表使用自動偵測的安裝目錄）
+# 範例：tia_exe_override = "C:\\Siemens\\Automation\\TIAV17\\bin\\TIA.exe"
+tia_exe_override = ""
+
+
+[ai]
+# AI 模型設定（使用 Gemini API 模型 ID）
+# 建議值：gemini-2.5-flash（速度快）、gemini-2.5-pro（品質高）
+default_model = "gemini-2.5-flash"
+
+# 各代理人的模型覆寫（留空代表使用 default_model）
+# 格式：agent_name = "model_id"
+# 可用的代理人名稱：generator, architecture, hmi, safety_auditor, code_reviewer,
+#                   panel_engineer, pdf_solver, chaos_tester, tech_writer, input_guard
+[ai.agent_models]
+# code_reviewer = "gemini-2.5-pro"    # 代碼審查用較強的模型
+# input_guard   = "gemini-2.5-flash"  # 守衛用快速模型即可
+
+
+[pipeline]
+# 生產線行為設定
+
+# 安全稽核：safety_score 低於此閾值時自動重試生成
+safety_score_threshold = 60
+
+# 代碼審查：code_review_score 低於此閾值時顯示警告
+code_review_threshold = 70
+
+# SCL 自動重試的最大次數（工安稽核未通過時）
+max_scl_retries = 2
+
+
+[ui]
+# 介面語言（目前僅支援 zh-TW）
+language = "zh-TW"
+
+# 預設的 TIA 專案部署路徑（使用者可在 UI 中覆寫）
+default_project_path = ""
+
+# 預設的 PLC 名稱
+default_plc_name = "PLC_1"
