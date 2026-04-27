@@ -4,6 +4,7 @@ import re
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from core.config import DEFAULT_MODEL
 
 # 載入底層 PDF 解析引擎
 try:
@@ -81,7 +82,7 @@ def main():
         user_prompt = current_config["prompt"] + "\n\n請將結果包裝在 ```json 和 ``` 標籤之間。\n\n" + safe_chunk
 
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model=DEFAULT_MODEL,
             contents=user_prompt, 
             config=types.GenerateContentConfig(
                 temperature=0.1, 

@@ -1,6 +1,7 @@
 import streamlit as st
 from core import utils
 from core import prompts
+from core.config import DEFAULT_MODEL
 from services.llm_service import generate_structured_content
 
 def generate_bug_fix(client, bug_input: str) -> tuple:
@@ -8,7 +9,7 @@ def generate_bug_fix(client, bug_input: str) -> tuple:
     prompt = prompts.get_bug_clinic_prompt()
     res, _ = generate_structured_content(
         client=client,
-        model='gemini-2.5-flash',
+        model=DEFAULT_MODEL,
         contents=bug_input,
         schema=utils.BugClinicOutput,
         system_instruction=prompt,

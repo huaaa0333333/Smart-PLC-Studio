@@ -3,6 +3,7 @@ import re
 from typing import Dict
 
 from core import utils
+from core.config import DEFAULT_MODEL
 from core.prompts import get_code_reviewer_prompt
 
 
@@ -32,7 +33,7 @@ def review_generated_code(client, scl_code: str, csv_tags: str) -> Dict:
     try:
         # Call Gemini client using the correct V1 API
         response = client.models.generate_content(
-            model='gemini-2.5-flash', 
+            model=DEFAULT_MODEL, 
             contents=prompt
         )
         text = response.text.strip()

@@ -16,7 +16,51 @@ from agents import (
 )
 import streamlit as st
 
-# ... (prepare_pipeline_input and run_step_panel_engineering remain unchanged)
+def prepare_pipeline_input(client, collection, user_input: str, pdf_bytes: bytes = None, tag_table_str: str = None) -> str:
+    """Step 0: Prepare pipeline input (Optional PDF Parsing & Tag Table Appending)."""
+    pipeline_input = user_input
+    if pdf_bytes:
+        try:
+            with st.status("📄 正在解析 PDF 規格...", expanded=True) as status:
+                st.write("👀 讀取圖表與文字...")
+                pdf_res, _, _ = mod_pdf_solver.solve_pdf(client, collection, pdf_bytes, user_input)
+                if pdf_res:
+                    pipeline_input += f"\n【PDF 擷取要求】：\n{pdf_res.thinking}"
+                status.update(label="✅ PDF 解析完成！", state="complete", expanded=False)
+        except Exception as e:
+            st.warning(f"PDF 解析出現異常，將退回僅使用文字需求: {e}")
+
+    if tag_table_str:
+        pipeline_input += f"\n\n【用戶提供的制式變數表/I/O 配置表 (請優先依循此表設計)】：\n{tag_table_str}"
+        
+    return pipeline_input
+
+def run_step_panel_engineering(client, pipeline_input: str, feedback: str = ""):
+    """Step 0.5: Panel Engineering."""
+    from agents import mod_panel_engineer
+    
+    formatted_input = pipeline_input
+    if feedback:
+        formatted_input += f"\n\n【⚠️ 審核修改意見 — 請務必遵守】：\n{feedback}"
+        
+    with st.status("🛠️ 正在進行控制箱工程規劃 (Panel Engineering)...", expanded=True) as status:
+        st.write("🧠 解析硬體需求與控制箱規格...")
+        panel_res = mod_panel_engineer.generate_panel_engineering(client, formatted_input)
+        status.update(label="✅ 控制箱工程規劃完成！", state="complete", expanded=False)
+    return panel_res
+
+def run_step_architecture(client, pipeline_input: str, feedback: str = ""):
+    """Step 1: Architecture Design."""
+    formatted_input = pipeline_input
+    if feedback:
+        formatted_input += f"\n\n【⚠️ 審核修改意見 — 請務必遵守】：\n{feedback}"
+        
+    with st.status("🧠 正在設計硬體架構與 I/O 配置...", expanded=True) as status:
+        st.write("🔍 分析需求與安全機制...")
+        st.write("⚙️ 評估 PLC 型號與節點...")
+        arch_res = mod_architecture_designer.generate_architecture(client, formatted_input)
+        status.update(label="✅ 架構規劃完成！", state="complete", expanded=False)
+    return arch_res
 
 # ==========================================
 #  Step 2.5: 工安稽核員 (Safety Audit)

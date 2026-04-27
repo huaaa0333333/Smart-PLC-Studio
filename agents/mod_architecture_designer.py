@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 import re
 from core import prompts
 from core import utils
+from core.config import DEFAULT_MODEL
 from services.llm_service import generate_structured_content
 
 # 定義架構師的專屬結構化輸出
@@ -37,7 +38,7 @@ def generate_architecture(client, user_input: str) -> ArchitectureOutput:
     prompt = prompts.get_architecture_prompt(user_input, catalog_options=catalog_options)
     res, raw_text = generate_structured_content(
         client=client,
-        model='gemini-2.5-flash',
+        model=DEFAULT_MODEL,
         contents=prompt,
         schema=ArchitectureOutput,
         system_instruction="你是一個嚴謹且具備高度工安意識的自動化系統架構師。",

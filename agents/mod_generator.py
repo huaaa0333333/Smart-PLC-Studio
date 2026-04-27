@@ -5,6 +5,7 @@ import re
 from pydantic import BaseModel, Field
 from core import utils
 from core import prompts
+from core.config import DEFAULT_MODEL
 from services.rag_service import query_knowledge
 from services.llm_service import generate_structured_content
 
@@ -28,7 +29,7 @@ def generate_scl(client, collection, user_input: str, target_version: str = "V17
     system_instruction = f"你是西門子 TIA Portal {target_version} 的高級專家，請務必按照規定的結構化輸出。"
     res, raw_text = generate_structured_content(
         client=client,
-        model='gemini-2.5-flash',
+        model=DEFAULT_MODEL,
         contents=prompt,
         schema=SclParseResult,
         system_instruction=system_instruction,

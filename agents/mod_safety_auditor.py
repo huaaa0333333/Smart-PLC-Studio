@@ -3,6 +3,7 @@ import json
 from pydantic import BaseModel, Field
 from typing import List
 from core import prompts
+from core.config import DEFAULT_MODEL
 from services.llm_service import generate_structured_content
 
 class SafetyAuditOutput(BaseModel):
@@ -19,7 +20,7 @@ def audit_safety(client, scl_code: str, csv_tags: str) -> SafetyAuditOutput:
     
     res, raw_text = generate_structured_content(
         client=client,
-        model='gemini-2.0-flash',
+        model=DEFAULT_MODEL,
         contents=prompt,
         schema=SafetyAuditOutput,
         system_instruction="你是一個嚴謹的工業安全專家 (Safety Auditor)，擅長抓出 PLC 程式碼中的隱藏風險，例如致死或毀損設備的邏輯漏洞。",

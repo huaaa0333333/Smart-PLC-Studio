@@ -1,6 +1,7 @@
 import json
 from pydantic import BaseModel, Field
 from core import prompts
+from core.config import DEFAULT_MODEL
 from services.llm_service import generate_structured_content
 import logging
 
@@ -23,7 +24,7 @@ def generate_tech_manual(
     
     res, raw_text = generate_structured_content(
         client=client,
-        model='gemini-2.0-flash',
+        model=DEFAULT_MODEL,
         contents=prompt,
         schema=TechManualOutput,
         system_instruction="你是一位專精於撰寫工業 ISO/IEC 標準備準檔案的資深技術寫手，非常擅長把程式邏輯翻譯為人類語言，且絕對確保手冊的變數名稱與實體程式碼完全吻合。",

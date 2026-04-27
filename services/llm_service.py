@@ -1,6 +1,7 @@
 from google.genai import types
+from core.config import DEFAULT_MODEL
 
-def generate_structured_content(client, model='gemini-2.5-flash', contents=None, schema=None, system_instruction=None, temperature=0.1):
+def generate_structured_content(client, model=DEFAULT_MODEL, contents=None, schema=None, system_instruction=None, temperature=0.1):
     """
     通用的大語言模型呼叫服務，處理 Gemini API 的結構化輸出呼叫。
     """
@@ -22,7 +23,7 @@ def generate_structured_content(client, model='gemini-2.5-flash', contents=None,
     except Exception as e:
         raise Exception(f"模型生成錯誤: {e}")
 
-def generate_markdown_stream(client, model='gemini-2.5-flash', contents=None, system_instruction=None, temperature=0.1):
+def generate_markdown_stream(client, model=DEFAULT_MODEL, contents=None, system_instruction=None, temperature=0.1):
     """
     處理 Gemini API 的純文字串流呼叫。直接回傳 generator 供 Streamlit 即時渲染。
     """
@@ -43,4 +44,3 @@ def generate_markdown_stream(client, model='gemini-2.5-flash', contents=None, sy
                 yield chunk.text
     except Exception as e:
         yield f"\n\n**模型串流生成錯誤**: {e}"
-

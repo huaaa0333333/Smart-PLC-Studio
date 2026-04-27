@@ -2,6 +2,7 @@ import json
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any
 from core import prompts
+from core.config import DEFAULT_MODEL
 from services.llm_service import generate_structured_content
 
 class ChaosAction(BaseModel):
@@ -27,7 +28,7 @@ def generate_chaos_plan(client, scl_code: str, csv_tags: str) -> ChaosTestPlan:
     
     res, raw_text = generate_structured_content(
         client=client,
-        model='gemini-2.0-flash',
+        model=DEFAULT_MODEL,
         contents=prompt,
         schema=ChaosTestPlan,
         system_instruction="你是一個極具破壞性的軟體測試專家 (Chaos Agent)，擅長透過邊界條件、信號反彈與併發衝突等手段來催毀脆弱的 PLC 程式邏輯。",

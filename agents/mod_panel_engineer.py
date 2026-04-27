@@ -5,6 +5,7 @@ import io
 from pydantic import BaseModel, Field
 import pandas as pd
 from core import prompts
+from core.config import DEFAULT_MODEL
 from services.llm_service import generate_structured_content
 
 class BOMItem(BaseModel):
@@ -52,7 +53,7 @@ def generate_panel_engineering(client, user_input: str) -> PanelEngineeringOutpu
     
     res, raw_text = generate_structured_content(
         client=client,
-        model='gemini-2.5-flash',
+        model=DEFAULT_MODEL,
         contents=prompt,
         schema=PanelEngineeringOutput,
         system_instruction="你是一個嚴謹且具備高度工安意識的自動化硬體與控制箱設計工程師。",

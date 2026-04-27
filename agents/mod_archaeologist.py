@@ -1,6 +1,7 @@
 import json
 from pydantic import BaseModel, Field
 from core import prompts
+from core.config import DEFAULT_MODEL
 from services.llm_service import generate_structured_content
 import logging
 
@@ -17,7 +18,7 @@ def reverse_engineer_block(client, legacy_xml: str) -> ArchaeologistOutput:
     
     res, raw_text = generate_structured_content(
         client=client,
-        model='gemini-2.0-flash',
+        model=DEFAULT_MODEL,
         contents=prompt,
         schema=ArchaeologistOutput,
         system_instruction="你是一個專精於將祖傳梯形圖與 SCL 轉換為現代化、單一職責、且命名優雅的重構大師。",

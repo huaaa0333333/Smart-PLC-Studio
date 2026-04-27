@@ -3,6 +3,7 @@ import pandas as pd
 import io
 from core import utils
 from google.genai import types
+from core.config import DEFAULT_MODEL
 from core import prompts
 from services.rag_service import query_knowledge
 from services.llm_service import generate_structured_content
@@ -20,7 +21,7 @@ def solve_pdf(client, collection, pdf_bytes: bytes, user_supplement: str) -> tup
     system_instruction = "你是一個嚴謹的 PLC 程式碼生成器，嚴格遵守結構化輸出規範。如果資訊量太大，請專注於核心控制邏輯。"
     res, raw_text = generate_structured_content(
         client=client,
-        model='gemini-2.5-flash',
+        model=DEFAULT_MODEL,
         contents=[pdf_part, prompt_text],
         schema=utils.PLCCodeOutput,
         system_instruction=system_instruction,

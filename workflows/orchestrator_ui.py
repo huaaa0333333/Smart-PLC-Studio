@@ -16,6 +16,7 @@ from workflows.orchestrator import (
     run_step_hmi, run_automated_pipeline, run_step_chaos_testing, run_step_tech_writer
 )
 from services.tia_exporter import TIAExporter
+from core.input_guard import validate_input
 
 
 # ==========================================
@@ -184,6 +185,30 @@ def _render_idle(client, collection):
                 except Exception as e:
                     st.error(f"無法讀取變數表檔案: {e}")
                     return
+
+            # ===== 🛡️ 輸入守衛：安全分類過濾 =====
+            with st.spinner("🛡️ 正在分析您的需求合法性..."):
+                guard = validate_input(client, user_input)
+
+            if guard.verdict == "INJECTION":
+                st.error(
+                    "🚨 **偵測到提示詞注入攻擊，請求已被拒絕。**\n\n"
+                    f"🔍 原因：{guard.reason}\n\n"
+                    "Smart PLC Studio 是一個專注於工業自動化的平台，"
+                    "如有正當的 PLC/SCL 設計需求，歡迎重新描述您的自動化控制需求。"
+                )
+                return
+            elif guard.verdict == "OFF_TOPIC":
+                st.warning(
+                    "⚠️ **無法處理此需求，請描述工業自動化相關的控制邏輯。**\n\n"
+                    f"🔍 說明：{guard.reason}\n\n"
+                    "**系統支援的需求類型範例：**\n"
+                    "- 🟢 馬達啟動/停止邏輯（含急停與運轉燈）\n"
+                    "- 🌡️ PID 溫度控制（PT100 + 加熱棒）\n"
+                    "- ⚙️ 氣缸順序控制（A/B 缸伸出退回時序）"
+                )
+                return
+            # ============================================
 
             st.session_state.pipeline_target_ver = target_version
 
